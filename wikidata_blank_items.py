@@ -97,7 +97,7 @@ def check_item(qid,null=False):
             null_edit(qid)
         except pywikibot.data.api.APIError, e:
             print '!!!!ALARM!!!!'
-            print str(e)
+            print unicode(e)
             return
         check_item(qid,null=True)
         return
