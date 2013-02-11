@@ -17,6 +17,7 @@ A collection of scripts assisting with the creation and upkeep of [wikidata.org]
 - ```wikidata_redir.py``` - Uses a database query to find items where the sitelink is a redirect. (TS)
 - ```wikidata_rc.py``` - Searches the recentchanges table for interwiki.py bots, and updates the Wikidata item. (TS)
 - ```wikidata_properties.py``` - Mass-adds properties to items based on Wikipedia categories. Reads from on-wiki page.
+- ```wd_*`` - Wrapper scripts used for the Toolserver's SGE system.
 
 ###Notes
 
