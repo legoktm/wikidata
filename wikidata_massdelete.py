@@ -4,7 +4,7 @@ Copyright (C) 2013 Legoktm
 
 Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for more details.
 """
-import time
+import sys
 import re
 link = re.compile('\[\[(.*?)\]\]')
 try:
@@ -15,7 +15,14 @@ import mwparserfromhell as mwparser
 
 
 
+
+
 def main():
+    skip=None
+    skipped=False
+    for arg in pywikibot.handleArgs():
+        if arg.startswith('--skip'):
+            skip = arg.split('=',1)[1]
     wikidata = pywikibot.getSite('wikidata','wikidata')
     page = pywikibot.Page(wikidata, 'User:Legobot/Dupes')
     text = page.get()
@@ -25,6 +32,11 @@ def main():
         if template.name != 'rfd links':
             continue
         qid = str(template.get(1).value)
+        if skip and not skipped:
+            if qid==skip:
+                skipped=True
+            else:
+                continue
         reason = str(template.get(2).value)
         dupe = link.search(reason)
         if not dupe:
@@ -44,5 +56,4 @@ def main():
         #time.sleep(10) - let pywikibot throttle handle it
 
 if __name__ == "__main__":
-    pywikibot.handleArgs()
     main()
