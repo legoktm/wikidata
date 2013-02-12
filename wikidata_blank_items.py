@@ -22,7 +22,7 @@ SELECT
 FROM page
 WHERE page_namespace=0
 AND NOT EXISTS (SELECT * FROM wb_items_per_site WHERE ips_item_id=REPLACE(page_title, "Q","") LIMIT 1)
-LIMIT 1000;
+LIMIT 2000;
 """
 
 
@@ -104,7 +104,7 @@ def check_item(qid,null=False):
             null_edit(qid)
         except pywikibot.data.api.APIError, e:
             print '!!!!ALARM!!!!'
-            print unicode(e)
+            #print unicode(e)
             return
         check_item(qid,null=True)
         return
