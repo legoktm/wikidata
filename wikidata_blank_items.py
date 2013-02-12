@@ -108,6 +108,8 @@ def check_item(qid,null=False):
             return
         check_item(qid,null=True)
         return
+    elif str(qid2) == '-1':
+        return
     if qid2 != qid.lower():
         print 'Checking {0} vs {1}'.format(qid, qid2)
     else:
