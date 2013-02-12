@@ -8,10 +8,12 @@ import pywikibot
 import mwparserfromhell as mwparser
 import wikidata_create
 
+#TODO: Write error logging methods
+
 class PropBot:
-    def __init__(self, lang, cat, pid, target_qid, summary, create):
+    def __init__(self, lang, source, pid, target_qid, summary, **kwargs):
         self.lang = lang
-        self.cat = cat
+        self.source = source
         self.pid = pid
         self.target_qid = target_qid
         self.target = int(self.target_qid.lower().replace('q',''))
@@ -20,13 +22,40 @@ class PropBot:
         self.repo = pywikibot.Site().data_repository()
         self.wikidata = pywikibot.Site('wikidata','wikidata')
         self.token = self.wikidata.token(pywikibot.Page(self.wikidata, 'Main Page'), 'edit')
-        self.create = create
+        self.options(kwargs)
+
+
+    def options(self, kwargs):
+        self.create = False
+        self.ignoreprefix = None
+        self.ignore = None
+        if 'create' in kwargs:
+            self.create = kwargs['create']
+        if 'ignoreprefix' in kwargs: #TODO: Allow CSV here
+            self.ignoreprefix = kwargs['ignoreprefix']
+        if 'ignore' in kwargs:
+            self.ignore = kwargs['ignore']
+
 
     def run(self):
-        category = pywikibot.Category(self.local_site, self.cat)
-        print 'Fetching {0}'.format(category.title())
-        gen = category.articles(namespaces=[0])
+        if self.source.startswith(tuple(self.local_site.namespaces()[14])):
+            category = pywikibot.Category(self.local_site, self.source)
+            print 'Fetching {0}'.format(category.title())
+            gen = category.articles(namespaces=[0])
+        elif self.source.startswith(tuple(self.local_site.namespaces()[10])):
+            template = pywikibot.Page(self.local_site, self.source)
+            gen = template.getReferences(follow_redirects=False, onlyTemplateInclusion=True, namespaces=[0])
+        else:
+            #bad input
+            return
         for page in gen:
+            #run it against our checks first
+            #TODO: These checks should be their own method for modularity
+            if page.title().startswith(self.ignoreprefix):
+                return
+            elif self.ignore and (page.title() in self.ignore):
+                return
+
             self.do_page(page)
 
     def do_page(self, page):
