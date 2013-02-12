@@ -27,10 +27,13 @@ LIMIT 2000;
 
 
 
-def report_dupe(first, second,exact=True):
+def report_dupe(first, second,exact=True,dontdelete=False):
     global REPORT
     global DUPES
     global EMPTY
+    if dontdelete:
+        REPORT += '\n*[[{0}]] vs [[{1}]] - need to be merged by hand.'.format(first, second)
+        return
     first=first.upper()
     if second:
         second=second.upper()
@@ -125,6 +128,9 @@ def check_item(qid,null=False):
     if results:
         print '{0} is a complex dupe of {1}'.format(results[1], results[0])
         report_dupe(results[1], results[0], exact=False)
+    #at this point we probably have a dupe, but not safe enough to delete. lets just report it.
+    report_dupe(qid, qid2, dontdelete=True)
+
 
 REPORT = '{{/Header}}\n'
 DUPES = ''
