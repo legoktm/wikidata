@@ -22,7 +22,7 @@ SELECT
 FROM page
 WHERE page_namespace=0
 AND NOT EXISTS (SELECT * FROM wb_items_per_site WHERE ips_item_id=REPLACE(page_title, "Q","") LIMIT 1)
-LIMIT 200;
+LIMIT 1000;
 """
 
 
