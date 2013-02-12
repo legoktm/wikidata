@@ -31,7 +31,8 @@ def main():
             continue
         page.delete(reason, prompt=False)
         print 'Destroyed. Will sleep a bit.'
-        time.sleep(10)
+        #time.sleep(10) - let pywikibot throttle handle it
 
 if __name__ == "__main__":
+    pywikibot.handleArgs()
     main()
