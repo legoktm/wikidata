@@ -30,6 +30,7 @@ LIMIT 200;
 def report_dupe(first, second,exact=True):
     global REPORT
     global DUPES
+    global EMPTY
     first=first.upper()
     if second:
         second=second.upper()
@@ -43,7 +44,10 @@ def report_dupe(first, second,exact=True):
             reason = 'Duplicate of [[{0}]]'.format(second)
         DUPES += second + '\n'
     else:
-        reason = 'Item is empty'
+        #empty item
+        EMPTY.append(first)
+        return
+        #reason = 'Item is empty'
     REPORT += '\n' + '*[[{0}]] - {{{{rfd links|{0}|{1}}}}} - {1}'.format(first, reason)
 
 def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
@@ -119,6 +123,22 @@ def check_item(qid,null=False):
 
 REPORT = '{{/Header}}\n'
 DUPES = ''
+EMPTY = []
+
+def rfd():
+    global EMPTY
+    if not EMPTY: #sbm
+        return
+    #report empty items straight to rfd
+    #{{subst:Rfd group |  |  |  |  |  | reason =  }}
+    text = '==Bulk deletion request: Empty items=='
+    text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason=Empty items detected by bot.}}'
+
+    rfd_page = pywikibot.Page(wikidata, 'Wikidata:Requests for deletions')
+    old = rfd_page.get()
+    new = old + '\n' + text
+    rfd_page.put(new, 'Bot: Adding list of empty items for deletion.')
+
 
 def main():
 
@@ -140,6 +160,7 @@ def main():
         check_item(row[0])
     global REPORT
     global DUPES
+    rfd() #before dupes
     pg = pywikibot.Page(wikidata, 'User:Legobot/Dupes')
     pg.put(REPORT, 'Bot: Updating list of dupes')
     #save dupes locally for null edits
