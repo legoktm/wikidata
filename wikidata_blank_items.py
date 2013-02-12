@@ -83,6 +83,9 @@ def check_item(qid,null=False):
     print 'Checking {0}'.format(qid)
     qid = qid.lower()
     id = int(qid.replace('q',''))
+    if id == 4115189: #wikidata sandbox
+        print 'Oops. Lets not delete the sandbox.'
+        return
     try:
         sitelinks = repo.get_sitelinks(qid)
     except AssertionError,e:
