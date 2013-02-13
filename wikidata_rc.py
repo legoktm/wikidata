@@ -82,7 +82,11 @@ def add_link(qid, site, title):
         'summary':u'Bot: Importing interwikis from enwiki',
         'bot':'1'
     }
-    res=repo.set_sitelinks(**params)
+    try:
+        res=repo.set_sitelinks(**params)
+    except pywikibot.data.api.APIError, e:
+        print unicode(e).encode('utf-8')
+        return #TODO: Log errors
     print res
 
 def main():
