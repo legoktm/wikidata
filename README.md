@@ -6,7 +6,7 @@ A collection of scripts assisting with the creation and upkeep of [wikidata.org]
 ###Dependencies
 
 - [legoktm/pywikipedia-rewrite/wikidata](https://github.com/legoktm/pywikipedia-rewrite/tree/wikidata) - Pywikipediabot rewrite branch fork, enhanced for wikidata.
-- [http://pythonhosted.org/oursql/](oursql) - MySQL bindings needed for Toolserver scripts (only required for some scripts).
+- [oursql](http://pythonhosted.org/oursql/) - MySQL bindings needed for Toolserver scripts (only required for some scripts).
 
 
 ###Scripts
