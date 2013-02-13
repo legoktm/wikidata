@@ -53,6 +53,10 @@ def report_dupe(first, second,exact=True,dontdelete=False):
         #reason = 'Item is empty'
     REPORT += '\n' + '*[[{0}]] - {{{{rfd links|{0}|{1}}}}} - {1}'.format(first, reason)
 
+def getSite(sitething):
+    lang = sitething.replace('wiki','') #Haaaaaack
+    return pywikibot.Site(lang, 'wikipedia')
+
 def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
     #establish a master item
     if len(sitelinks1) == len(sitelinks2):
@@ -72,6 +76,24 @@ def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
     for lang in other_sl:
         if lang in sitelinks:
             if other_sl[lang] != sitelinks[lang]:
+                #hmmm lets check if one is a redirect?
+                other_page = pywikibot.Page(getSite(lang), other_sl[lang])
+                the_page = pywikibot.Page(getSite(lang), sitelinks[lang])
+                if other_page.isRedirectPage():
+                    #find the target
+                    target = other_page.getRedirectTarget()
+                    if target != the_page:
+                        errors = True
+                        break
+                elif the_page.isRedirectPage():
+                    target = the_page.getRedirectTarget()
+                    if target != other_page:
+                        errors = True
+                        break
+                else:
+                    errors = True
+                    break
+            else:
                 errors = True
                 break
         else:
