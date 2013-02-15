@@ -6,7 +6,7 @@ Copyright (C) 2013 Legoktm
 Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for more details.
 """
 import time
-import simplejson
+import json
 import pywikibot
 from pywikibot.data import api
 
@@ -42,7 +42,7 @@ def create_item(lang, title, token=None,check=True,labels=False):
     raw_data = {'sitelinks':sitelinks}
     if labels:
         raw_data['labels'] = labels
-    export = simplejson.dumps(raw_data)
+    export = json.dumps(raw_data)
     p2 = {'action':'wbeditentity',
           'data':export,
           'summary':'Importing from [[:w:{0}:{1}]]'.format(lang, title)
