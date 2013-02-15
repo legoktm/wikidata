@@ -159,8 +159,14 @@ DUPES = ''
 EMPTY = []
 
 def rfd():
-    reason = 'Empty items detected by bot'
+    reason = 'Empty item detected by bot'
     global EMPTY
+    rfd_page = pywikibot.Page(wikidata, 'Wikidata:Requests for deletions')
+    old = rfd_page.get()
+    for item in EMPTY[:]:
+        if item in old:
+            EMPTY.remove(item)
+
     if not EMPTY: #sbm
         return
     #report empty items straight to rfd
@@ -169,10 +175,8 @@ def rfd():
     else:
         #{{subst:Rfd group |  |  |  |  |  | reason =  }}
         text = '==Bulk deletion request: Empty items=='
-        text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason={0}}}}}'.format(reason)
+        text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason={0}|comment=Empty items detected by bot.}}}}'.format(reason)
 
-    rfd_page = pywikibot.Page(wikidata, 'Wikidata:Requests for deletions')
-    old = rfd_page.get()
     new = old + '\n' + text
     rfd_page.put(new, 'Bot: Adding list of empty items for deletion.')
 
