@@ -163,7 +163,11 @@ class PropBot:
                   'token':self.token,
                   'bot':1
         }
-        result = self.repo.set_claim(**params)
+        try:
+            result = self.repo.set_claim(**params)
+        except pywikibot.data.api.APIError, e:
+            self.logger.error(page, unicode(e).encode('utf-8'), qid)
+            return
         print result
         time.sleep(2)
         return self.logger.done(page,qid)
