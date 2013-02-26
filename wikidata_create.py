@@ -45,7 +45,8 @@ def create_item(lang, title, token=None,check=True,labels=False):
     export = json.dumps(raw_data)
     p2 = {'action':'wbeditentity',
           'data':export,
-          'summary':'Importing from [[:w:{0}:{1}]]'.format(lang, title)
+          'summary':'Importing from [[:w:{0}:{1}]]'.format(lang, title),
+          'bot':1
     }
     if token:
         p2['token'] = token
