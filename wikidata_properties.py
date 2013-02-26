@@ -7,6 +7,8 @@ Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for m
 """
 import time
 import datetime
+import oursql
+import os
 import pywikibot
 import mwparserfromhell as mwparser
 import wikidata_create
@@ -14,12 +16,21 @@ import wikidata_create
 wikidata = pywikibot.Site('wikidata','wikidata')
 recursion_users = []
 
+pywikibot.handleArgs()
+
+db = oursql.connect(db='u_legoktm_wikidata_properties_p',
+    host="sql-s1-user.toolserver.org",
+    read_default_file=os.path.expanduser("~/.my.cnf"),
+    raise_on_warnings=False,
+)
+
+
 class Log:
-    def __init__(self, row, source, lang):
-        self.row = row
+    def __init__(self, row, source, lang, db, job_id, nolog):
         self.source = source
         self.lang = lang
         self.storage = list()
+        self.row = row
         #Storage is a list of tuples:
         #(lang, Article, Successful?, comment, id)
         #Note that successful can have 3 values, True, False, None
@@ -27,51 +38,71 @@ class Log:
         #False = Not done/Error
         #None = Already done (no action taken)
         #QID or None
+        self.conn = db
+        self.cursor = self.conn.cursor()
+        self.job_id = job_id
+        self.nolog = nolog
 
     def blacklist(self, page, reason):
         """
         Was blacklisted for whatever reason.
         """
-        self.storage.append((page.site.language(), page.title(), False, reason, None))
+        self.insert(page.site.language(), page.title(), 0, reason, None)
         return False
-    def done(self, page,id):
-        self.storage.append((page.site.language(), page.title(), True, '',id))
+    def done(self, page,id, notes=''):
+        self.insert(page.site.language(), page.title(), 1, notes,id)
         return True
     def error(self, page, reason,id):
-        self.storage.append((page.site.language(), page.title(), False, reason,id))
+        self.insert(page.site.language(), page.title(), 0, reason,id)
         return False
-    def already(self, page,id):
-        self.storage.append((page.site.language(), page.title(), None, '',id))
+    def already(self, page,id, notes=''):
+        self.insert(page.site.language(), page.title(), 2, notes,id)
         return True
 
     def save(self):
         basepage = 'User:Legobot/properties.js/Archive/'
         suffix = datetime.datetime.utcnow().strftime('%Y/%m/%d')
         page = pywikibot.Page(wikidata, basepage+suffix)
-        header = '[[:{0}:{1}]]'.format(self.lang, self.source)
-        text = self.row +'\n{{User:Legobot/Table/top}}\n'
-        for row in self.storage:
-            if row[4]:
-                text+='{{{{User:Legobot/Table/row|wikilink={0}:{1}|done={2!s}|{3}|id={4}}}}}\n'.format(*row)
-            else:
-                text+='{{{{User:Legobot/Table/row|wikilink={0}:{1}|done={2!s}|{3}}}}}\n'.format(*row)
-        text+='|} --~~~~'
-        page.put(text, header, newsection=True)
+        code = mwparser.parse(self.row)
+        if not self.nolog:
+            code.filter_templates()[0].add('id',str(self.job_id))
+        page.text = '\n' + unicode(code)
+        wikidata.editpage(page, 'Bot: Archiving request', append=True)
+
+    def deqify(self, id):
+        #de-q-ify
+        if id:
+            return int(id.lower().replace('q',''))
+
+    def insert(self, lang, page, success, notes, id):
+        if self.nolog:
+            return
+        data = (None, lang, success, page, notes, None, self.deqify(id), self.job_id)
+        try:
+            self.cursor.execute('INSERT INTO `edits` VALUES (?,?,?,?,?,?,?,?)', data)
+        except UnicodeDecodeError:
+            pass #TODO FIXME
+            #data = (None, lang, success, page.decode('utf-8'), notes, None, self.deqify(id), self.job_id)
+            #self.cursor.execute('INSERT INTO `edits` VALUES (?,?,?,?,?,?,?,?)', data)
+
 
 
 class PropBot:
-    def __init__(self, lang, source, pid, target_qid, summary, row, **kwargs):
+    def __init__(self, lang, source, pid, target_qid, summary, row, job_id, db, **kwargs):
         self.lang = lang
         self.source = source
         self.pid = pid
         self.target_qid = target_qid
-        self.target = int(self.target_qid.lower().replace('q',''))
+        #self.target =
         self.summary = summary
         self.local_site = pywikibot.Site(self.lang, 'wikipedia')
-        self.repo = pywikibot.Site().data_repository()
+        self.repo = pywikibot.Site('en','wikipedia').data_repository()
         self.wikidata = wikidata
         self.token = self.wikidata.token(pywikibot.Page(self.wikidata, 'Main Page'), 'edit')
+        self.db = db
+        self.job_id = job_id
         self.options = kwargs
+        self.nolog = 'nolog' in kwargs
         #this just needs to be global
         self.create = 'create' in self.options
         #recursion for rschen
@@ -79,10 +110,23 @@ class PropBot:
             self.recursion = int(self.options['recursion'])
         else:
             self.recursion = 0
+        #build a dict of props to add
+        self.add = dict()
+        self.add[pid.lower()] = target_qid
+        for key in kwargs:
+            if key.startswith(('pid')):
+                self.add[kwargs[key].lower()] = kwargs['qid'+key[-1:]] #super haxor
+        print 'here'
+        for x in self.add:
+            print "{}: {}".format(x, self.add[x])
+
 
         #set up logging
-        self.logger = Log(row, source, lang)
+        self.logger = Log(row, source, lang, db, job_id, self.nolog)
 
+
+    def deqify(self, i):
+        return int(i.lower().replace('q',''))
 
     def run_checks(self, page):
         ##IGNORE PREFIX.
@@ -115,7 +159,10 @@ class PropBot:
     def run(self):
         if self.source.startswith(tuple(self.local_site.namespaces()[14])):
             category = pywikibot.Category(self.local_site, self.source)
-            print 'Fetching {0}'.format(category.title())
+            try:
+                print 'Fetching {0}'.format(category.title().encode('utf-8'))
+            except UnicodeDecodeError:
+                pass
             gen = category.articles(namespaces=[0], recurse=self.recursion)
         elif self.source.startswith(tuple(self.local_site.namespaces()[10])):
             template = pywikibot.Page(self.local_site, self.source)
@@ -129,7 +176,8 @@ class PropBot:
             if checks:
                 self.do_page(page)
             else:
-                print 'Skipping {0}'.format(page.title())
+                pass
+                #print 'Skipping {0}'.format(page.title())
         self.logger.save()
 
     def do_page(self, page):
@@ -149,45 +197,64 @@ class PropBot:
             try:
                 qid = wikidata_create.create_item(self.lang, title, token=self.token,check=False)
                 created = True
-                time.sleep(2)
+                #time.sleep(20)
             except pywikibot.data.api.APIError:
                 return self.logger.error(page, 'Item could not be created.',None)
         #at this point, lets make sure we're not adding a duplicate claim.
-        if not created and self.check_claims(qid, page):
-            #means it was already done
-            return
-        params = {'entity':qid,
-                  'property':self.pid,
-                  'snaktype':'value',
-                  'value':'{{"entity-type":"item","numeric-id":{0}}}'.format(self.target),
-                  'token':self.token,
-                  'bot':1
-        }
-        try:
-            result = self.repo.set_claim(**params)
-        except pywikibot.data.api.APIError, e:
-            self.logger.error(page, unicode(e).encode('utf-8'), qid)
-            return
-        print result
-        time.sleep(2)
-        return self.logger.done(page,qid)
+        if not created:
+            already_done, add_these = self.check_claims(qid, page)
+            if already_done:
+                return
+        else:
+            add_these = self.add.keys()
+        for pid in add_these:
+            params = {'entity':qid,
+                      'property':pid,
+                      'snaktype':'value',
+                      'value':'{{"entity-type":"item","numeric-id":{0}}}'.format(self.deqify(self.add[pid])),
+                      'token':self.token,
+                      'bot':1,
+                      'summary':self.summary,
+            }
+            try:
+                result = self.repo.set_claim(**params)
+            except pywikibot.data.api.APIError, e:
+                self.logger.error(page, unicode(e).encode('utf-8'), qid)
+                continue
+            print result
+        #time.sleep(20)
+        if created:
+            notes = '(created by bot)'
+        else:
+            notes = ''
+        return self.logger.done(page,qid,notes=notes)
 
     def check_claims(self, qid, page):
         claims = self.repo.get_claims(qid)
-        if not self.pid.lower() in claims:
-            return
-        prop = claims[self.pid.lower()]
-        #lets check if our specific value is there
-        for claim in prop:
-            if int(claim['mainsnak']['datavalue']['value']['numeric-id']) == self.target:
-                return self.logger.already(page,qid)
-        return
+        add_these = list()
+        for key in self.add:
+            if not key in claims:
+                add_these.append(key)
+                continue
+            prop = claims[key]
+            added=False
+            for claim in prop:
+                if int(claim['mainsnak']['datavalue']['value']['numeric-id']) == self.deqify(self.add[key]):
+                    added=True
+                    break
+            if not added:
+                add_these.append(key)
+
+        if not add_these:
+            return True,self.logger.already(page,qid)
+        return False,add_these
 
 
 class FeedBot:
-    def __init__(self):
+    def __init__(self, db):
         self.site = wikidata
         self.page = pywikibot.Page(self.site, 'User:Legobot/properties.js')
+        self.db = db
 
     def run(self):
         jobs = self.page.get().splitlines()
@@ -215,16 +282,51 @@ class FeedBot:
 requested by [[User talk:{user}|{user}]]'.format(**data)
         data['summary'] = summary
         #lets build some options
-        whitelist = ['ignoreprefix','create','ignore','recursion']
+        whitelist = ('ignoreprefix','create','ignore','recursion','pid','qid','nolog')
         for param in temp.params:
-            if unicode(param.name) in whitelist:
+            if unicode(param.name).startswith(whitelist):
                 data[unicode(param.name)] = unicode(param.value)
         print data
+        job_id = self.insert(data) #load into the db
+        data['job_id'] = job_id
+        data['db'] = self.db
         bot = PropBot(**data)
         bot.run()
+        self.mark_done(job_id)
+
+    def insert(self, data):
+        # lang  source  pid  target_qid  row  user None done None, pid2, qid2, pid3, qid3, pid4, qid4, pid5, qid5
+        d = (None, #None aka id
+             data['lang'], #lang
+             data['source'], #source
+             data['pid'], #pid
+             data['target_qid'], #target_qid
+             data['row'], #row
+             data['user'], #user
+             None, #None aka timestamp
+             0, #done
+             data.get('pid2',None),
+             data.get('qid2',None),
+             data.get('pid3',None),
+             data.get('qid3',None),
+             data.get('pid4',None),
+             data.get('qid4',None),
+             data.get('pid5',None),
+             data.get('qid5',None),
+        )
+        cursor = self.db.cursor()
+        cursor.execute('INSERT INTO `jobs` VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', d)
+        #get the id
+        cursor.execute('SELECT MAX(id) FROM jobs')
+        return cursor.fetchone()[0]
+
+    def mark_done(self, job_id):
+        cursor = self.db.cursor()
+        cursor.execute('UPDATE jobs SET done=1 WHERE id=?', (job_id,))
+
 
 
 
 if __name__ == "__main__":
-    robot = FeedBot()
+    robot = FeedBot(db)
     robot.run()
