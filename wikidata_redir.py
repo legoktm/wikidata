@@ -21,6 +21,7 @@ SELECT
 FROM toolserver.wiki
 WHERE family = "wikipedia"
 AND is_multilang =0
+AND lang!="it"
 """
 
 
@@ -154,16 +155,17 @@ class Robot:
             params = {'id':qid,
                       'linksite':'{lang}wiki'.format(**self.data),
                       'linktitle':new,
-                      'summary':u"Bypassing redirect to [[:w:{lang}:{0}]]".format(new,**self.data),
+                      'summary':u"Bypassing redirect to [[:w:{lang}:{0}]]".format(new.decode('utf-8'),**self.data),
                       'bot':'1'}
             print params
             repo.set_sitelinks(**params)
             #quit()
         except pywikibot.data.api.APIError, e:
-            self.log_error('[[{0}]] - {1}'.format(qid, str(e)))
-        except UnicodeDecodeError:
+            self.log_error('[[{0}]] - {1}'.format(qid, unicode(e)))
+        #except UnicodeDecodeError:
             #lol
-            return
+        #    print 'unicode decode error'
+        #    return
 
     def log_error(self, s):
         page=pywikibot.Page(wikidata, 'User:Legobot/Conflicts/{lang}wiki'.format(**self.data))
@@ -211,29 +213,8 @@ class Robot:
                     matching +=1
         return (float(matching) / len(local.keys())) > .75
 
-    def replag_is_low(self):
-        query="SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(MAX(rc_timestamp)) FROM {db}.recentchanges;"
-        if self.dbname != 'simplewiki_p':
-            dbs = [self.dbname,]#'wikidatawiki_p'
-        else:
-            dbs=[]
-        cursor=self.db.cursor()
-        low = True
-        for db_name in dbs:
-            cursor.execute(query.format(db=db_name))
-            lag=cursor.fetchone()[0]
-            if lag==None:
-                lag=99999999
-            if int(lag) > 10:
-                low = False
-        if not low:
-            print 'REPLAG IS HIGH.'
-        return ignore_replag or low
 
     def run(self):
-        if not self.replag_is_low():
-            print 'Replag is too high. Will try again later'
-            quit()
         print 'Running query'
         cursor = self.db.cursor()
         cursor.execute(query.format(**self.data))
@@ -243,6 +224,7 @@ class Robot:
             target = self.fetch_target(page, id)
 
             if not target:
+                print 'target not found??'
                 continue
             print target
             self.update_wd(id, target)
@@ -266,6 +248,8 @@ def main():
     cur = db_ts.cursor()
     cur.execute(get_langs)
     data = cur.fetchall()
+    cur.close()
+    db_ts.close()
     for dbname, lang in data:
         if not go:
             if dbname.startswith(start_value):
