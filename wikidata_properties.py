@@ -24,6 +24,8 @@ db = oursql.connect(db='u_legoktm_wikidata_properties_p',
     raise_on_warnings=False,
 )
 
+SOURCE_VALUES = {'en':328,
+           } #TODO: read from somewhere onwiki or dynamic updates
 
 class Log:
     def __init__(self, row, source, lang, db, job_id, nolog):
@@ -222,12 +224,23 @@ class PropBot:
             }
             try:
                 result = self.repo.set_claim(**params)
+                if self.lang in SOURCE_VALUES:
+                    value = SOURCE_VALUES[self.lang]
+                    s_params = {'statement':result['claim']['id'],
+                                'token':self.token,
+                                'bot':1,
+                                'snaks':'{"p143":[{"snaktype":"value","property":"p143","datavalue":{"type":"wikibase-entityid","value":{"entity-type":"item","numeric-id":'+str(value)+'}}}]}'
+                    }
+                    res2 = self.repo.set_reference(**s_params)
+                    print res2
+                print result
             except pywikibot.data.api.APIError, e:
                 self.logger.error(page, unicode(e).encode('utf-8'), qid)
                 continue
-            print result
+
         #time.sleep(20)
         return self.logger.done(page,qid,notes=notes)
+
 
     def check_claims(self, qid, page):
         claims = self.repo.get_claims(qid)
