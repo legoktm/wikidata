@@ -207,6 +207,10 @@ class PropBot:
                 return
         else:
             add_these = self.add.keys()
+        if created:
+            notes = 'created by bot'
+        else:
+            notes = ''
         for pid in add_these:
             params = {'entity':qid,
                       'property':pid,
@@ -223,10 +227,6 @@ class PropBot:
                 continue
             print result
         #time.sleep(20)
-        if created:
-            notes = '(created by bot)'
-        else:
-            notes = ''
         return self.logger.done(page,qid,notes=notes)
 
     def check_claims(self, qid, page):
