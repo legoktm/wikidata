@@ -124,7 +124,7 @@ class Generator:
         }
         values = {}
         for pg in data:
-            values[str(pg.id)] = {'revid':pg.revisionid, 'content':pg.text,'title':pg.title}
+            values[str(pg.id)] = {'revid':pg.revisionid, 'content':pg.text,'title':pg.title,'id':pg.id}
         req = self.api.request(params)
         need_update = list()
         pages = req['query']['pages']
@@ -172,10 +172,11 @@ class WikidataBot:
         self.enwp_token = self.enwp.token(pywikibot.Page(self.enwp, 'User:Legoktm'), 'edit')
         self.logger = Log()
         self.override = False
-        self.count = 40
+        self.trial = 0
+        self.trial_on = '--trial' in sys.argv
 
     def process(self, object):
-        #object = {'revid', 'content', 'title'}
+        #object = {'revid', 'content', 'title','id'}
 
         qid = self.repo.get_id(g_lang+'wiki', object['title'])
         if not self.override:
@@ -194,7 +195,7 @@ class WikidataBot:
         #if created:
         #    self.remove_links(object, qid)
         if self.override:
-            self.remove_links(object, qid)
+            self.remove_links(object, qid,'??')
             return
         locallanglinks = textlib.getLanguageLinks(object['content'], insite=self.enwp)
         #print locallanglinks
@@ -230,8 +231,6 @@ class WikidataBot:
                 #they both exist and arent equal
                 checked=False
                 s = pywikibot.Site(prefix, 'wikipedia')
-                print l
-                print f
                 l_p = pywikibot.Page(s, l)
                 try:
                     if not l_p.exists():
@@ -253,6 +252,7 @@ class WikidataBot:
                     allgood=False
                     ok=False
             if not ok:
+                print 'dont match'
                 errors.append(lang)
 
 
@@ -261,10 +261,13 @@ class WikidataBot:
                 data = add_link(qid, langwiki.replace('-','_'), to_add[langwiki], showerror=True,source=g_lang)
             except pywikibot.data.api.APIError, e:
                 return self.logger.error(object, unicode(e).encode('utf-8'), qid)
+            except TypeError:
+                #weird pywikibot error
+                return self.logger.error(object, 'Error while adding [[:{0}:{1}]] to wikidata.'.format(langwiki.replace('wiki',''), to_add[langwiki]),qid)
             if not 'success' in data:
                 return self.logger.error(object, 'Error while adding [[:{0}:{1}]] to wikidata.'.format(langwiki.replace('wiki',''), to_add[langwiki]),qid)
             else:
-                print 'Added '+langwiki
+                print 'Added '+ langwiki
         #log some errors
         if errors:
             for error in errors:
@@ -277,20 +280,25 @@ class WikidataBot:
 
         #we should be good now
         try:
-            self.remove_links(object, qid)
+            self.remove_links(object, qid, len(locallanglinks))
         except pywikibot.data.api.TimeoutError:
-            pass #it probably went through anyways
+            print 'timeout error'
+            pass  # it probably went through anyways
+        self.trial += 1
+        if self.trial_on:
+            time.sleep(3)
+            if self.trial >= 50:
+                print 'trial over.'
+                quit()
+
 
     def translate(self, msg):
         if g_lang in msg:
-            return msg[g_lang]
+            return msg[g_lang].decode('utf-8')
         else:
-            return msg['default']
+            return msg['default'].decode('utf-8')
 
-    def remove_links(self, object, qid):
-        if self.count > 50:
-            print 'TRIAL OVER'
-            sys.exit()
+    def remove_links(self, object, qid, count):
         newtext = textlib.removeLanguageLinks(object['content'], self.enwp)
         #need to build a page object
         page = pywikibot.Page(self.enwp, object['title'])
@@ -303,14 +311,15 @@ class WikidataBot:
                 nocreate=True,
                 lastrev=int(object['revid']),
                 token=self.enwp_token,
-                skipec=True
+                skipec=True,
+                useid=object['id']
             )
-            self.count += 1
-            print 'COUNT: '+str(self.count)
             return
         except pywikibot.exceptions.LockedPage:
+            print 'protected'
             return self.logger.error(object, 'Page was protected.',qid)
         except pywikibot.exceptions.EditConflict:
+            print 'edit conflict'
             return self.logger.error(object, 'Edit conflict.',qid)
         #except:
         #    return self.logger.error(object, 'Wtf error.', qid)
@@ -326,12 +335,15 @@ class WikidataBot:
             #print object['title']
             try:
                 self.process(object)
-            except UnicodeDecodeError:
-                pass
+            #except UnicodeDecodeError:
+            #    print 'decode error'
+            #    pass
             except UnicodeEncodeError:
+                print 'encode error'
                 pass
 
 if __name__ == "__main__":
+    print 'Operating on '+wiki
     pywikibot.handleArgs()
     bot = WikidataBot()
     bot.run()
