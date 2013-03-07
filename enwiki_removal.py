@@ -38,7 +38,7 @@ PATH = '/home/legoktm/public_html/import/'
 PROGRESS = PATH + '{0}_progress.txt'.format(g_lang)
 DUMP = '/mnt/user-store/dumps/{0}-latest-pages-articles.xml'.format(wiki)
 py_enwp = pywikibot.Site(g_lang,'wikipedia')
-enwp = mw.Wiki('https://{0}.wikipedia.org/w/api.php'.format(g_lang))
+enwp = mw.Wiki('http://{0}.wikipedia.org/w/api.php'.format(g_lang))
 enwp.login(settings.username, settings.password)
 
 
