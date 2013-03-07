@@ -6,7 +6,6 @@ Copyright (C) 2013 Legoktm
 Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for more details.
 """
 import pywikibot
-import oursql
 import os
 import time
 import sys
@@ -89,6 +88,7 @@ def add_link(qid, site, title,showerror=False,source='en'):
         return repo.set_sitelinks(**params)
 
 def main():
+    import oursql
     db = oursql.connect(db='dewiki_p',
         host="dewiki-p.rrdb.toolserver.org",
         read_default_file=os.path.expanduser("~/.my.cnf"),
