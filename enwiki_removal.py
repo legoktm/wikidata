@@ -130,13 +130,13 @@ class Generator:
         pages = req['query']['pages']
         for pageid in pages:
             if 'missing' in pages[pageid]:
-                del values[str(pageid)] #deleted
+                del values[str(pageid)]  # deleted
                 continue
             elif 'redirect' in pages[pageid]:
-                del values[str(pageid)] #is a redirect now
+                del values[str(pageid)]  # is a redirect now
                 continue
             if not 'revisions' in pages[pageid]:
-                del values[str(pageid)] #deleted i guess
+                del values[str(pageid)]  # deleted i guess
                 continue
             revision = pages[pageid]['revisions'][0]
             if revision['revid'] != values[pageid]['revid']:
