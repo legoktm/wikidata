@@ -36,7 +36,7 @@ def create_item(lang, title, token=None,check=True,labels=False):
     sitelinks = {wiki:{'site':wiki,'title':title}}
     labels = {lang:{'language':lang, 'value':title}}
     for link in links:
-        s=link['lang']+'wiki'
+        s=link['lang'].replace('-','_')+'wiki'
         sitelinks[s]={'site':s,'title':link['*']}
         labels[link['lang']]={'language':link['lang'],'value':link['*']}
     raw_data = {'sitelinks':sitelinks}
@@ -58,9 +58,14 @@ def create_item(lang, title, token=None,check=True,labels=False):
     try:
         done = create.submit()
     except pywikibot.data.api.APIError, e:
-        if 'Could not create a new page.' in e or e=='':
+        e = unicode(e)
+        if 'already exists' in e or e=='':
             #whatthefuck
             return create_item(lang, title, token=token, check=check, labels=labels) #fuckit
+        elif 'The external client site did' in e:
+            return '-1' #yeah wtf
+        elif 'already used by item' in e:
+            return '-1'
         else:
             print repr(unicode(e))#.decode('utf-8'))
             raise pywikibot.data.api.APIError, e
@@ -77,12 +82,11 @@ def mass_create(lang, titles, token=None):
     return r
 
 if __name__ == "__main__":
+    pywikibot.handleArgs()
     #d=['Eschatology: Death and Eternal Life', 'The Spirit of the Liturgy','Truth and Tolerance']
     #print mass_create('en',d)
     #create_item('en','Category:American chemical engineers')
-    category=pywikibot.Category(enwp, 'Category:World Hockey Association players')
-    for subcat in category.subcategories():
+    category=pywikibot.Category(enwp, 'Category:National Hockey League')
+    for subcat in category.articles(recurse=True, namespaces=[0]):
         print subcat
         x=create_item('en',subcat.title(),labels=True)
-        if x:
-            time.sleep(20)
