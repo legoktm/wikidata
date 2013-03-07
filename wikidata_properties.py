@@ -25,6 +25,20 @@ db = oursql.connect(db='u_legoktm_wikidata_properties_p',
 )
 
 SOURCE_VALUES = {'en':328,
+                 'sv':169514,
+                 'de':48183,
+                 'it':11920,
+                 'no':191769,
+                 'ar':199700,
+                 'es':8449,
+                 'pl':1551807,
+                 'ca':199693,
+                 'fr':8447,
+                 'nl':10000,
+                 'pt':11921,
+                 'ru':206855,
+                 'vi':200180,
+
            } #TODO: read from somewhere onwiki or dynamic updates
 
 class Log:
