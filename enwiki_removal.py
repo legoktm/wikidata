@@ -91,9 +91,9 @@ class Log:
         print 'Bot, logging error'
         reason = reason.replace('\n',' ') #should really fix the "xxwiki" syntax. Oh well
         if id:
-            text = '\n*[[{0}]] ([[d:{1}]] - [{3}{1} check]) - {2}'.format(object['title'], id, reason, checktool)
+            text = '\n*[[:{0}]] ([[d:{1}]] - [{3}{1} check]) - {2}'.format(object['title'], id, reason, checktool)
         else:
-            text = '\n*[[{0}]] - {2}'.format(object['title'], id, reason)
+            text = '\n*[[:{0}]] - {2}'.format(object['title'], id, reason)
         page.text= text.decode('utf-8')
         self.enwp.editpage(page, 'Bot: Logging conflict', append=True)
 
