@@ -26,12 +26,21 @@ else:
     wiki = 'enwiki'
 
 g_lang = wiki.replace('wiki','')
-print 'Operating on '+wiki
 
 #autotranslatable summaries
 
-editsummary = {'default':'Bot: Migrating langlinks to [[WP:Wikidata]] - [[d:{0}]]',
-               'he':'בוט: מעביר קישורי בינויקי ל[[ויקיפדיה:ויקינתונים|ויקינתונים]] - [[d:{0}]]'
+editsummary = {'default':'Bot: Migrating $counter langlinks to [[WP:Wikidata]] - [[d:$id]]',
+               'he':"בוט: מעביר קישורי בינויקי ל[[ויקיפדיה:ויקינתונים|ויקינתונים]] - [[d:$id]]",
+               'it':'migrazione di $counter interwiki links su [[d:Wikidata:Pagina_principale|Wikidata]] - [[d:$id]]',
+               'de':'Bot: Verschiebe $counter Interwikilinks, die nun in [[d:|Wikidata]] unter [[d:$id]] bereitgestellt werden',
+               'es':'Quitando $counter enlaces entre-wiki, proviendo ahora por [[d:|Wikidata]] en la página [[d:$id]].',
+               'fr':'Suis retirer $counter liens entre les wikis, actuellement fournis par [[d:|Wikidata]] sur la page [[d:$id]]',
+               'nl':'Verplaatsing van $counter interwikilinks die op [[d:|Wikidata]] beschikbaar zijn op [[d:$id]]',
+               'sl':'Bot: Migracija $counter interwikija/-ev, od zdaj gostuje(-jo) na [[Wikipedija:Wikipodatki|Wikipodatkih]], na [[d:$id]]',
+               'sv':'Bot överför $counter interwikilänk(ar), som nu återfinns på sidan [[d:$id]] på [[Wikipedia:Wikidata|Wikidata]]',
+               'tet':'Bot: Hasai $counter ligasaun interwiki, ne\'ebé agora mai husi [[d:$id]] iha [[Wikipedia:Wikidata|Wikidata]]',
+               'hu':'Bot: $counter interwiki link migrálva a [[d:|Wikidata]] [[d:$id]] adatába',
+               'ca':'Bot: Traient $counter enllaços interwiki, ara proporcionats per [[d:|Wikidata]] a [[d:$id]]',
 }
 
 PATH = '/home/legoktm/public_html/import/'
@@ -286,7 +295,7 @@ class WikidataBot:
         #need to build a page object
         page = pywikibot.Page(self.enwp, object['title'])
         page.text = newtext
-        summary = self.translate(editsummary).format(qid)
+        summary = self.translate(editsummary).replace('$id', qid).replace('$counter', str(count))
         try:
             self.enwp.editpage(
                 page,
