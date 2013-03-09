@@ -112,6 +112,9 @@ class Generator:
                 for p in self.check(storage):
                     yield p
                 storage = list()
+        if len(storage) != 0:
+            for p in self.check(storage):
+                yield p
 
 
     def check(self, data):
