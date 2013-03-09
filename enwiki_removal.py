@@ -29,25 +29,66 @@ g_lang = wiki.replace('wiki','')
 
 #autotranslatable summaries
 
-editsummary = {'default':'Bot: Migrating $counter langlinks to [[WP:Wikidata]] - [[d:$id]]',
-               'he':"בוט: מעביר קישורי בינויקי ל[[ויקיפדיה:ויקינתונים|ויקינתונים]] - [[d:$id]]",
-               'it':'migrazione di $counter interwiki links su [[d:Wikidata:Pagina_principale|Wikidata]] - [[d:$id]]',
-               'de':'Bot: Verschiebe $counter Interwikilinks, die nun in [[d:|Wikidata]] unter [[d:$id]] bereitgestellt werden',
-               'es':'Quitando $counter enlaces entre-wiki, proviendo ahora por [[d:|Wikidata]] en la página [[d:$id]].',
-               'fr':'Suis retirer $counter liens entre les wikis, actuellement fournis par [[d:|Wikidata]] sur la page [[d:$id]]',
-               'nl':'Verplaatsing van $counter interwikilinks die op [[d:|Wikidata]] beschikbaar zijn op [[d:$id]]',
-               'sl':'Bot: Migracija $counter interwikija/-ev, od zdaj gostuje(-jo) na [[Wikipedija:Wikipodatki|Wikipodatkih]], na [[d:$id]]',
-               'sv':'Bot överför $counter interwikilänk(ar), som nu återfinns på sidan [[d:$id]] på [[Wikipedia:Wikidata|Wikidata]]',
-               'tet':'Bot: Hasai $counter ligasaun interwiki, ne\'ebé agora mai husi [[d:$id]] iha [[Wikipedia:Wikidata|Wikidata]]',
-               'hu':'Bot: $counter interwiki link migrálva a [[d:|Wikidata]] [[d:$id]] adatába',
-               'ca':'Bot: Traient $counter enllaços interwiki, ara proporcionats per [[d:|Wikidata]] a [[d:$id]]',
+editsummary = {
+    "el":"[[User:Addbot|Ρομπότ:]] Μεταφέρω $counter σύνδεσμους interwiki, που τώρα παρέχονται από τα [[Wikipedia:Wikidata|Wikidata]] στο [[d:$id]]",
+    "eo":"[[Uzanto:Addbot|Roboto:]] Forigo de $counter interlingvaj ligiloj, kiuj nun disponeblas per [[d:|Vikidatumoj]] ([[d:$id]])",
+    "en":"Bot: Migrating $counter langlinks, now provided by [[Wikipedia:Wikidata|Wikidata]] on [[d:$id]]",
+    "zh":"机器人：移除",
+    "af":"Verplasing van $counter interwikiskakels wat op [[d:|Wikidata]] beskikbaar is op [[d:$id]]",
+    "vi":"Bot: Di chuyển $counter liên kết ngôn ngữ đến [[d:|Wikidata]] tại [[d:$id]] [[M:User:Addbot/WDS|Addbot]]",
+    "ca":"Bot: Traient $counter enllaços interwiki, ara proporcionats per [[d:|Wikidata]] a [[d:$id]]",
+    "am":"[[User:Addbot|ሎሌ፦]] መያያዣዎች ወደ $counter ልሳናት አሁን በ[[Wikipedia:Wikidata|Wikidata]] ገጽ [[d:$id]] ስላሉ ተዛውረዋል።",
+    "it":"migrazione di $counter interwiki links su [[d:Wikidata:Pagina_principale|Wikidata]] - [[d:$id]]",
+    "cs":"[[Wikipedista:Addbot|Bot:]] Odstranění $counter [[Wikipedie:Wikidata#Mezijazykové odkazy|odkazů interwiki]], které jsou nyní dostupné na [[d:|Wikidatech]] ([[d:$id]])",
+    "ar":"[[مستخدم:Addbot|بوت:]] ترحيل $counter وصلة إنترويكي, موجودة الآن في [[d:|ويكي بيانات]] على [[d:$id]]",
+    "eu":"[[User:Addbot|Robota:]] hizkuntza arteko $counter lotura lekualdatzen; aurrerantzean [[Wikipedia:Wikidata|Wikidata]] webgunean izango dira, [[d:$id]] orrian",
+    "gl":"[[Usuario:Addbot|Bot:]] Retiro $counter ligazóns interlingüísticas, proporcionadas agora polo [[d:|Wikidata]] en [[d:$id]]",
+    "tet":"Bot: Hasai $counter ligasaun interwiki, ne'ebé agora mai husi [[d:$id]] iha [[d:|Wikidata]] ",
+    "id":"[[Pengguna:Addbot|Bot:]] Migrasi $counter pranala interwiki, karena telah disediakan oleh [[Wikipedia:Wikidata|Wikidata]] pada item [[d:$id]]",
+    "es":"Moviendo $counter enlace(s) interlingüístico(s), ahora proporcionado(s) por [[d:|Wikidata]] en la página [[d:$id]].",
+    "lb":"Bot: Huet $counter Interwikilinke geréckelt, déi elo op [[d:|Wikidata]] op [[d:$id]] zur Verfügung gestallt ginn",
+    "nn":"[[Brukar:Addbot|robot:]] fjerna $counter interwikilenkjer som er flytte til [[d:$id]] på [[Wikipedia:Wikidata|Wikidata]]",
+    "min":"[[Pengguna:Addbot|Bot:]] Migrasi $counter pautan interwiki, dek lah disadioan jo [[Wikipedia:Wikidata|Wikidata]] pado [[d:$id]]",
+    "lv":"[[User:Addbot|Bots:]] pārvieto $counter starpvikipēdiju saites, kas atrodas [[d:|Vikidatos]] [[d:$id]]",
+    "frr":"[[User:Addbot|Bot:]] Fersküüw $counter interwiki-links, diar nü uun [[d:|Wikidata]] üüb det sidj [[d:$id]] paroot stun",
+    "_default":"[[M:User:Addbot|Bot:]] Migrating $counter interwiki links, now provided by [[d:|Wikidata]] on [[d:$id]] [[M:User:Addbot/WDS|(translate me)]]",
+    "is":"Bot: Flyt $counter tungumálatengla, sem eru núna sóttir frá [[d:|Wikidata]] á [[d:$id]]",
+    "nv":"wikidata bitsʼą́ą́dę́ę́ʼígíí chodaoʼį́ kʼad ([[d:$id]]; $counter wikidata bitsʼą́ą́dę́ę́ʼ)",
+    "ta":"[[User:Addbot|தானியங்கி:]] $counter விக்கியிடை இணைப்புகள் நகர்த்தப்படுகின்றன, தற்போது [[Wikipedia:Wikidata|விக்கிதரவில்]] இங்கு [[d:$id]]",
+    "fr":"Suis retirer $counter liens entre les wikis, actuellement fournis par [[d:|Wikidata]] sur la page [[d:$id]]",
+    "ms":"[[Pengguna:Addbot|Bot:]] Memindahkan $counter pautan interwiki, kini disediakan oleh [[Wikipedia:Wikidata|Wikidata]] di [[d:$id]]",
+    "sl":"Bot: Migracija $counter interwikija/-ev, od zdaj gostuje(-jo) na [[d:|Wikipodatkih]], na [[d:$id]]",
+    "bn":"[[ব্যবহারকারী:Addbot|বট]]: $counterটি আন্তঃউইকি সংযোগ সরিয়ে নেওয়া হয়েছে, যা এখন [[d:Wikidata:প্রধান পাতা|উইকিউপাত্ত]] এর [[d:$id]] এ রয়েছে",
+    "de":"Bot: Verschiebe $counter Interwikilinks, die nun in [[d:|Wikidata]] unter [[d:$id]] bereitgestellt werden",
+    "hu":"Bot: $counter interwiki link migrálva a [[d:|Wikidata]] [[d:$id]] adatába",
+    "fi":"[[Käyttäjä:Addbot|Botti]] poisti $counter [[Wikipedia:Wikidata|Wikidatan]] sivulle [[d:$id]] siirrettyä kielilinkkiä",
+    "da":"Bot: Migrerer $counter interwikilinks, som nu leveres af [[d:|Wikidata]] på [[d:$id]]",
+    "ja":"[[User:Addbot|ボット]]: 言語間リンク $counter 件を[[Wikipedia:ウィキデータ|ウィキデータ]]上の [[d:$id]] に転記",
+    "he":"בוט: מעביר קישורי בינויקי ל[[ויקיפדיה:ויקינתונים|ויקינתונים]] - [[d:$id]]",
+    "ckb":"[[بەکارھێنەر:Addbot|بۆت:]] گواستنەوەی $counter پەیوەندیی نێوانویکی، ئێستا دابین کراوە لەسەر [[d:| ویکیدراوە]] لە [[d:$id]]",
+    "ilo":"[[Agar-aramat:Addbot|Bot:]] Agiyal-alis kadagiti $counter nga interwiki, a nait-iteden idiay [[Wikipedia:Wikidata|Wikidata]] iti [[d:$id]]",
+    "no":"bot: Fjerner $counter interwikilenker som nå hentes fra [[d:$id]] på [[d:|Wikidata]]",
+    "ko":"[[User:Addbot|봇:]] 인터위키 링크 $counter 개가 [[백:위키데이터|위키데이터]]의 [[d:$id]] 항목으로 옮겨짐",
+    "sv":"Bot överför $counter interwikilänk(ar), som nu återfinns på sidan [[d:$id]] på [[d:|Wikidata]]",
+    "ur":"[[صارف:Addbot|ربالہ:]] منتقلی $counter بین الویکی روابط، اب [[d:|ویکی ڈیٹا]] میں [[d:$id]] پر موجود ہیں",
+    "sk":"[[Redaktor:Addbot|Bot:]] Odstránenie $counter odkazov interwiki, ktoré sú teraz dostupné na [[d:|Wikiúdajoch]] ([[d:$id]])",
+    "ku":"Bot: $counter girêdanên înterwîkiyê ên ku niha li ser [[:d|Wikidata]]yê ne, jê bibe",
+    "ml":"$counter ഇന്റര്വിക്കി കണ്ണികളെ [[d:|വിക്കിഡാറ്റയിലെ]] [[d:$id]] എന്ന താളിലേക്ക്  മാറ്റിപ്പാര്പ്പിച്ചിരിക്കുന്നു. ",
+    "nl":"Verplaatsing van $counter interwikilinks die op [[d:|Wikidata]] beschikbaar zijn op [[d:$id]]",
+    "os":"Бот схафта $counter æвзагы æрвитæны, кæцытæ [[Википеди:Викирардтæ|Викирардты]] нырид сты ацы фарсы: [[d:$id]]",
 }
+if '--labs' in sys.argv:
+    DUMP = '/public/datasets/public/{0}/'.format(wiki)
+    dates = [int(x) for x in os.listdir(DUMP)]
+    date = str(max(dates))
+    DUMP += '{0}/{1}-{0}-pages-articles.xml.bz2'.format(date, wiki)
+else:
+    PATH = '/home/legoktm/public_html/import/'
+    PROGRESS = PATH + '{0}_progress.txt'.format(g_lang)
+    DUMP = '/mnt/user-store/dumps/{0}-latest-pages-articles.xml'.format(wiki)
 
-PATH = '/home/legoktm/public_html/import/'
-PROGRESS = PATH + '{0}_progress.txt'.format(g_lang)
-DUMP = '/mnt/user-store/dumps/{0}-latest-pages-articles.xml'.format(wiki)
-py_enwp = pywikibot.Site(g_lang,'wikipedia')
-enwp = mw.Wiki('http://{0}.wikipedia.org/w/api.php'.format(g_lang))
+py_enwp = pywikibot.Site(g_lang.replace('_','-'),'wikipedia')
+enwp = mw.Wiki('http://{0}.wikipedia.org/w/api.php'.format(g_lang.replace('_','-')))
 enwp.login(settings.username, settings.password)
 
 
@@ -89,12 +130,13 @@ class Log:
         if object['title'] in self.storage:
             return
         print 'Bot, logging error'
+        print object['title']
         reason = reason.replace('\n',' ') #should really fix the "xxwiki" syntax. Oh well
         if id:
-            text = '\n*[[:{0}]] ([[d:{1}]] - [{3}{1} check]) - {2}'.format(object['title'], id, reason, checktool)
+            text = u'\n*[[:{0}]] ([[d:{1}]] - [{3}{1} check]) - {2}'.format(object['title'], id, reason, checktool)
         else:
-            text = '\n*[[:{0}]] - {2}'.format(object['title'], id, reason)
-        page.text= text.decode('utf-8')
+            text = u'\n*[[:{0}]] - {2}'.format(object['title'], id, reason)
+        page.text= text
         self.enwp.editpage(page, 'Bot: Logging conflict', append=True)
 
 
@@ -164,12 +206,12 @@ class Generator:
     def inner_gen(self):
         gen = self.dump.parse()
         for page in gen:
-            if (page.ns != 2) and (page.ns % 2 == 0) and not page.isredirect:
+            if (not page.ns in (2, 6, 8)) and (page.ns % 2 == 0) and not page.isredirect:
                 yield page
 
 class WikidataBot:
     def __init__(self):
-        self.enwp = pywikibot.Site(g_lang,'wikipedia')
+        self.enwp = py_enwp
         self.repo = self.enwp.data_repository()
         self.token = self.repo.token(pywikibot.Page(self.repo, 'Main Page'), 'edit')
         self.enwp_token = self.enwp.token(pywikibot.Page(self.enwp, 'User:Legoktm'), 'edit')
@@ -177,6 +219,7 @@ class WikidataBot:
         self.override = False
         self.trial = 0
         self.trial_on = '--trial' in sys.argv
+        self.showerrors = '--errors' in sys.argv
 
     def process(self, object):
         #object = {'revid', 'content', 'title','id'}
@@ -193,7 +236,7 @@ class WikidataBot:
             #    created = True
                 #time.sleep(2)
             #except pywikibot.data.api.APIError:
-            return self.logger.error(object, 'Item does not exist.',None)
+            return #self.logger.error(object, 'Item does not exist.',None)
         #if we just created, that means the links are exact.
         #if created:
         #    self.remove_links(object, qid)
@@ -299,7 +342,7 @@ class WikidataBot:
         if g_lang in msg:
             return msg[g_lang].decode('utf-8')
         else:
-            return msg['default'].decode('utf-8')
+            return msg['_default'].decode('utf-8')
 
     def remove_links(self, object, qid, count):
         newtext = textlib.removeLanguageLinks(object['content'], self.enwp)
@@ -336,14 +379,21 @@ class WikidataBot:
 
         for object in gen:
             #print object['title']
-            try:
+            if self.showerrors:
                 self.process(object)
-            #except UnicodeDecodeError:
-            #    print 'decode error'
-            #    pass
-            except UnicodeEncodeError:
-                print 'encode error'
-                pass
+            else:
+                try:
+                    self.process(object)
+                #except UnicodeDecodeError:
+                #    print 'decode error'
+                #    pass
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
+                except:
+                    #just suppress errors for now, we can fix them later
+                    print 'uhohs error'
+                    pass
+
 
 if __name__ == "__main__":
     print 'Operating on '+wiki
