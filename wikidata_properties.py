@@ -288,11 +288,12 @@ class FeedBot:
         for job in jobs:
             if job.startswith('#') or not job.strip():
                 continue
-            self.run_job(job)
+            done = self.run_job(job)
             #remove it
-            current = self.page.get(force=True)
-            current = current.replace(job+'\n', '').strip()
-            self.page.put(current, 'Bot: Removing archived job')
+            if done:
+                current = self.page.get(force=True)
+                current = current.replace(job+'\n', '').strip()
+                self.page.put(current, 'Bot: Removing archived job')
 
     def run_job(self, job):
         temp = mwparser.parse(job).filter_templates()[0]
@@ -314,12 +315,16 @@ requested by [[User talk:{user}|{user}]]'.format(**data)
             if unicode(param.name).startswith(whitelist):
                 data[unicode(param.name)] = unicode(param.value)
         print data
+        #check to make sure this job shouldnt be done on labs.
+        if 'db' in data:
+            return False
         job_id = self.insert(data) #load into the db
         data['job_id'] = job_id
         data['db'] = self.db
         bot = PropBot(**data)
         bot.run()
         self.mark_done(job_id)
+        return True
 
     def insert(self, data):
         # lang  source  pid  target_qid  row  user None done None, pid2, qid2, pid3, qid3, pid4, qid4, pid5, qid5
