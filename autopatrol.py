@@ -21,6 +21,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
 import pywikibot
+import sys
 from pywikibot.data import api
 
 site = pywikibot.Site('wikidata','wikidata')
@@ -72,4 +73,8 @@ def main():
 
 if __name__ == "__main__":
     pywikibot.handleArgs()
-    main()
+    if len(sys.argv) > 2:
+        for c in fetch(sys.argv[1]):
+            patrol(*c)
+    else:
+        main()
