@@ -5,7 +5,7 @@ Copyright (C) 2013 Legoktm
 
 Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for more details.
 """
-import time
+import sys
 import json
 import pywikibot
 from pywikibot.data import api
@@ -67,8 +67,11 @@ def create_item(lang, title, token=None,check=True,labels=False):
         elif 'already used by item' in e:
             return '-1'
         else:
-            print repr(unicode(e))#.decode('utf-8'))
-            raise pywikibot.data.api.APIError, e
+            try:
+                print repr(unicode(e))#.decode('utf-8'))
+                raise pywikibot.data.api.APIError, e
+            except:
+                return None
     if 'success' in done:
         print 'Successful!'
     else:
@@ -86,7 +89,10 @@ if __name__ == "__main__":
     #d=['Eschatology: Death and Eternal Life', 'The Spirit of the Liturgy','Truth and Tolerance']
     #print mass_create('en',d)
     #create_item('en','Category:American chemical engineers')
-    category=pywikibot.Category(enwp, 'Category:National Hockey League')
-    for subcat in category.articles(recurse=True, namespaces=[0]):
+    if len(sys.argv) > 1:
+        category=pywikibot.Category(enwp, sys.argv[1])
+    else:
+        category=pywikibot.Category(enwp, 'Category:National Hockey League')
+    for subcat in category.subcategories(recurse=True):
         print subcat
         x=create_item('en',subcat.title(),labels=True)
