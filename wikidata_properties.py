@@ -14,7 +14,6 @@ import mwparserfromhell as mwparser
 import wikidata_create
 
 wikidata = pywikibot.Site('wikidata','wikidata')
-recursion_users = []
 
 pywikibot.handleArgs()
 
@@ -122,7 +121,7 @@ class PropBot:
         #this just needs to be global
         self.create = 'create' in self.options
         #recursion for rschen
-        if 'recursion' in self.options and self.options['user'].lower() in recursion_users:
+        if 'recursion' in self.options:
             self.recursion = int(self.options['recursion'])
         else:
             self.recursion = 0
