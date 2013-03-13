@@ -17,11 +17,13 @@ wikidata = pywikibot.Site('wikidata','wikidata')
 
 pywikibot.handleArgs()
 
-db = oursql.connect(db='u_legoktm_wikidata_properties_p',
-    host="sql-s1-user.toolserver.org",
-    read_default_file=os.path.expanduser("~/.my.cnf"),
-    raise_on_warnings=False,
-)
+
+def open_db():
+    return oursql.connect(db='u_legoktm_wikidata_properties_p',
+        host="sql-s1-user.toolserver.org",
+        read_default_file=os.path.expanduser("~/.my.cnf"),
+        raise_on_warnings=False,
+    )
 
 SOURCE_VALUES = {'en':328,
                  'sv':169514,
@@ -322,6 +324,8 @@ requested by [[User talk:{user}|{user}]]'.format(**data)
         data['db'] = self.db
         bot = PropBot(**data)
         bot.run()
+        if 'nolog' in data:
+            self.db = open_db()
         self.mark_done(job_id)
         return True
 
@@ -359,5 +363,5 @@ requested by [[User talk:{user}|{user}]]'.format(**data)
 
 
 if __name__ == "__main__":
-    robot = FeedBot(db)
+    robot = FeedBot(open_db())
     robot.run()
