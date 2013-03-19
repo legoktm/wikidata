@@ -7,10 +7,7 @@ Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for m
 import sys
 import re
 link = re.compile('\[\[(.*?)\]\]')
-try:
-    import wikipedia as pywikibot
-except ImportError:
-    import pywikibot
+import pywikibot
 import mwparserfromhell as mwparser
 
 
@@ -38,6 +35,9 @@ def main():
             else:
                 continue
         reason = str(template.get(2).value)
+        if not ('exact' in reason.lower() or 'duplicate' in reason.lower()):
+            print 'Not an exact dupe, skipping'
+            continue
         dupe = link.search(reason)
         if not dupe:
             print 'Error: Cannot parse the deletion reason, skipping.'
