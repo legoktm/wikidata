@@ -53,9 +53,11 @@ def report_dupe(first, second,exact=True,dontdelete=False):
         #reason = 'Item is empty'
     REPORT += '\n' + '*[[{0}]] - {{{{rfd links|{0}|{1}}}}} - {1}'.format(first, reason)
 
+
 def getSite(sitething):
-    lang = sitething.replace('wiki','') #Haaaaaack
+    lang = sitething.replace('wiki','').replace('_','-') #Haaaaaack
     return pywikibot.Site(lang, 'wikipedia')
+
 
 def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
     #establish a master item
@@ -72,9 +74,13 @@ def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
         sitelinks = sitelinks2
         other = qid1
         other_sl = sitelinks1
+    print qid
+    #print sitelinks
+    #print other_sl
     errors = False
     for lang in other_sl:
         if lang in sitelinks:
+            print 'in'
             if other_sl[lang] != sitelinks[lang]:
                 #hmmm lets check if one is a redirect?
                 other_page = pywikibot.Page(getSite(lang), other_sl[lang])
@@ -93,10 +99,8 @@ def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
                 else:
                     errors = True
                     break
-            else:
-                errors = True
-                break
         else:
+            print 'missing '+lang
             errors = True
             break
     if not errors:
@@ -150,6 +154,7 @@ def check_item(qid,null=False):
     if results:
         print '{0} is a complex dupe of {1}'.format(results[1], results[0])
         report_dupe(results[1], results[0], exact=False)
+        return
     #at this point we probably have a dupe, but not safe enough to delete. lets just report it.
     report_dupe(qid, qid2, dontdelete=True)
 
@@ -159,23 +164,29 @@ DUPES = ''
 EMPTY = []
 
 def rfd():
-    reason = 'Empty item detected by [[User:Legobot|Legobot]]'
+    reason = 'Empty item detected by bot'
     global EMPTY
+    print 'Thought empty: '+str(len(EMPTY))
+    for item in EMPTY[:]:
+        i = pywikibot.Page(wikidata, item)
+        refs = list(i.getReferences(namespaces=[0]))
+        if refs:
+            EMPTY.remove(item)
     rfd_page = pywikibot.Page(wikidata, 'Wikidata:Requests for deletions')
     old = rfd_page.get()
     for item in EMPTY[:]:
         if item in old:
             EMPTY.remove(item)
-
     if not EMPTY: #sbm
         return
+    print 'Actually empty: '+str(len(EMPTY))
     #report empty items straight to rfd
     if len(EMPTY) == 1:
         text = "{{{{subst:Request for deletion| itemid ={0}| reason ={1}}}}}".format(EMPTY[0], reason)
     else:
         #{{subst:Rfd group |  |  |  |  |  | reason =  }}
         text = '==Bulk deletion request: Empty items=='
-        text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason={0}|comment=Empty items detected by [[User:Legobot|Legobot]].}}}}'.format(reason)
+        text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason={0}|comment=Empty items detected by bot.}}}}'.format(reason)
 
     new = old + '\n' + text
     rfd_page.put(new, 'Bot: Adding list of empty items for deletion.')
@@ -197,8 +208,12 @@ def main():
     cur = db.cursor()
     cur.execute(query)
     data=cur.fetchall()
+    TOTAL = len(data)
     for row in data:
-        check_item(row[0])
+        try:
+            check_item(row[0])
+        except:
+            pass
     global REPORT
     global DUPES
     rfd() #before dupes
@@ -215,6 +230,10 @@ def main():
     with open(fname, 'w') as f:
         f.write(new)
     print 'Saved dupe file'
+    print 'TOTAL: {0}. DUPES: {1}.'
 
 if __name__ == "__main__":
-    main()
+    if '--test' in sys.argv:
+        check_item('Q743645')
+    else:
+        main()
