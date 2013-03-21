@@ -188,7 +188,7 @@ def rfd():
         text = '==Bulk deletion request: Empty items=='
         text += '\n{{subst:Rfd group|' + '|'.join(EMPTY) + '|reason={0}|comment=Empty items detected by bot.}}}}'.format(reason)
 
-    new = old + '\n' + text
+    new = old + '\n\n' + text
     rfd_page.put(new, 'Bot: Adding list of empty items for deletion.')
 
 
