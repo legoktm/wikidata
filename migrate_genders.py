@@ -31,6 +31,7 @@ migrate = {'q44148': male,
 
 pywikibot.handleArgs()
 
+
 def gen():
     oldmale = pywikibot.ItemPage(repo, 'Q44148')
     oldfemale = pywikibot.ItemPage(repo, 'Q43445')
@@ -41,17 +42,25 @@ def gen():
 
 for page in gen():
     item = pywikibot.ItemPage(repo, page.title())
+    print item.getID()
     try:
         item.get()
-    except:
+    except KeyError:
         continue
-    print item.getID()
+    except KeyboardInterrupt:
+        print 'quitting...'
+        quit()
+#    except:
+#        continue
     if 'p21' in item.claims:
         for claim in item.claims['p21']:
             if claim.getTarget().getID().lower() in migrate:
                 new = migrate[claim.getTarget().getID().lower()]
                 try:
                     claim.changeTarget(value=new, bot=1)
-                except:
-                    pass
+                except pywikibot.data.api.APIError, e:
+                    print e.code.encode('utf-8')
+                    print e.info.encode('utf-8')
+                    #quit()
+                #    pass
                 #fuckit
