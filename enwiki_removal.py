@@ -113,6 +113,10 @@ py_enwp = pywikibot.Site(g_lang.replace('_','-'),'wikipedia')
 enwp = mw.Wiki('http://{0}.wikipedia.org/w/api.php'.format(g_lang.replace('_','-')))
 enwp.login(settings.username, settings.password)
 
+def clean_timestamp(ts):
+    #'2008-07-30T22:10:41Z'
+    return ts.replace('-','').replace('T','').replace(':','').replace('Z','')
+
 
 def union(a, b):
     return list(set(a) | set(b))
@@ -186,12 +190,17 @@ class Generator:
         ids = [str(p.id) for p in data]
         params = {'action':'query',
                   'prop':'revisions|info',
-                  'rvprop':'ids',
-                  'pageids':'|'.join(ids)
-        }
+                  'rvprop':'ids|timestamp',
+                  'pageids':'|'.join(ids),
+                  }
         values = {}
         for pg in data:
-            values[str(pg.id)] = {'revid':pg.revisionid, 'content':pg.text,'title':pg.title,'id':pg.id}
+            values[str(pg.id)] = {'revid': pg.revisionid,
+                                  'content': pg.text,
+                                  'title': pg.title,
+                                  'id': pg.id,
+                                  'timestamp': pg.timestamp,
+                                  }
         req = self.api.request(params)
         need_update = list()
         pages = req['query']['pages']
@@ -209,7 +218,7 @@ class Generator:
             if revision['revid'] != values[pageid]['revid']:
                 need_update.append(pageid)
         if need_update:
-            params['rvprop'] = 'content'
+            params['rvprop'] = 'content|timestamp|ids'
             params['pageids'] = '|'.join(need_update)
             req = self.api.request(params)
             pages = req['query']['pages']
@@ -222,6 +231,8 @@ class Generator:
                     continue
                 revision = pages[pageid]['revisions'][0]
                 values[pageid]['content'] = revision['*']
+                values[pageid]['timestamp'] = revision['timestamp']
+                values[pageid]['revid'] = revision['revid']
         for page in values:
             yield values[page]
 
@@ -382,7 +393,8 @@ class WikidataBot:
                 lastrev=int(object['revid']),
                 token=self.enwp_token,
                 skipec=True,
-                useid=object['id']
+                useid=object['id'],
+                timestamp=clean_timestamp(object['timestamp']),
             )
             return
         except pywikibot.exceptions.LockedPage:
