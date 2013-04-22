@@ -8,6 +8,8 @@ import sys
 import re
 link = re.compile('\[\[(.*?)\]\]')
 import pywikibot
+from pywikibot import config
+config.put_throttle = 0
 import mwparserfromhell as mwparser
 
 
