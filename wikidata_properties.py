@@ -39,7 +39,9 @@ SOURCE_VALUES = {'en':328,
                  'pt':11921,
                  'ru':206855,
                  'vi':200180,
-
+                 'be':877583,
+                 'uk':199698,
+                 'tr':58255,
            } #TODO: read from somewhere onwiki or dynamic updates
 
 class Log:
@@ -135,7 +137,7 @@ class PropBot:
                 self.add[kwargs[key].lower()] = kwargs['qid'+key[-1:]] #super haxor
         print 'here'
         for x in self.add:
-            print "{}: {}".format(x, self.add[x])
+            print "%s: %s" % (x, self.add[x])
 
 
         #set up logging
@@ -148,23 +150,17 @@ class PropBot:
     def run_checks(self, page):
         ##IGNORE PREFIX.
         if 'ignoreprefix' in self.options:
-            if ',' in self.options['ignoreprefix']:
-                ignoreprefix = self.options['ignoreprefix'].split(',')
-            else:
-                ignoreprefix = [self.options['ignoreprefix']]
+            ignoreprefix = self.options['ignoreprefix'].split(',')
             for prefix in ignoreprefix:
                 if page.title().startswith(prefix):
-                    reason = 'Blacklisted: {0}'.format(prefix)
+                    reason = 'Blacklisted: %s' % (prefix)
                     return self.logger.blacklist(page, reason)
         #IGNORE.
         if 'ignore' in self.options:
-            if ',' in self.options['ignore']:
-                ignore = self.options['ignore'].split(',')
-            else:
-                ignore = [self.options['ignore']]
+            ignore = self.options['ignore'].split(',')
             for i in ignore:
                 if page.title() == i.strip():
-                    reason = 'Ignored: {0}'.format(i)
+                    reason = 'Ignored: %s' % (i)
                     return self.logger.blacklist(page, reason)
         #redirect check
         if page.isRedirectPage():
@@ -177,7 +173,7 @@ class PropBot:
         if self.source.startswith(tuple(self.local_site.namespaces()[14])):
             category = pywikibot.Category(self.local_site, self.source)
             try:
-                print 'Fetching {0}'.format(category.title().encode('utf-8'))
+                print 'Fetching %s ' % (category.title().encode('utf-8'))
             except UnicodeDecodeError:
                 pass
             gen = category.articles(namespaces=[0], recurse=self.recursion)
