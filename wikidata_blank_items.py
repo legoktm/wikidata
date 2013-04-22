@@ -6,10 +6,7 @@ Licensed as CC-Zero. See https://creativecommons.org/publicdomain/zero/1.0 for m
 """
 import sys
 import os
-try:
-    import oursql
-except ImportError:
-    pass
+import oursql
 import pywikibot
 from wikidata_null_edit import null_edit
 site = pywikibot.Site()
@@ -108,6 +105,19 @@ def complex_diff(qid1, qid2, sitelinks1, sitelinks2):
     return
 
 
+def check_blist(qid):
+    item = pywikibot.ItemPage(repo, qid)
+    try:
+        item.get()
+    except KeyError:
+        return False  # grrr
+    if 'p31' in item.claims:
+        for c in item.claims['p31']:
+            if c.getTarget().getID() == 'q2065736':
+                return False
+    return True
+
+
 def check_item(qid,null=False):
     print 'Checking {0}'.format(qid)
     qid = qid.lower()
@@ -115,6 +125,8 @@ def check_item(qid,null=False):
     if id == 4115189: #wikidata sandbox
         print 'Oops. Lets not delete the sandbox.'
         return
+    if not check_blist(qid):
+        return  # meets an exemption thingy
     try:
         sitelinks = repo.get_sitelinks(qid)
     except AssertionError,e:
