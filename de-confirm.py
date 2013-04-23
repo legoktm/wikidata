@@ -23,7 +23,8 @@ IN THE SOFTWARE.
 import pywikibot
 from pywikibot.data import api
 site = pywikibot.Site('wikidata','wikidata')
-
+if not site.logged_in():
+    site.login()
 def get_users():
     #action=query&list=allusers&augroup=confirmed&auprop=groups&aulimit=max&format=jsonfm
     params = {'action':'query',
@@ -35,8 +36,9 @@ def get_users():
     req = api.Request(site=site, **params)
     data = req.submit()
     for user in data['query']['allusers']:
+        print user
         if 'autoconfirmed' in user['groups']:
-            print user
+            #print user
             yield user['name']
 
 def change_rights(user):
