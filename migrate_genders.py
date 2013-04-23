@@ -54,6 +54,8 @@ for page in gen():
 #        continue
     if 'p21' in item.claims:
         for claim in item.claims['p21']:
+            if not claim.getTarget():
+                continue
             if claim.getTarget().getID().lower() in migrate:
                 new = migrate[claim.getTarget().getID().lower()]
                 try:
