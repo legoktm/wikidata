@@ -25,19 +25,31 @@ import sys
 from pywikibot.data import api
 
 site = pywikibot.Site('wikidata','wikidata')
+if not site.logged_in():
+    site.login()
+#print site.username()
 #action=query&list=recentchanges&rcuser=Dexbot&rclimit=max&rcshow=!patrolled&rctoken=patrol'
 
+
+def fetch_whitelist():
+        #list=allusers&augroup=sysop|autopatrolled&format=jsonfm&aulimit=max
+    params = {'site': site,
+              'augroup': 'sysop|autopatrolled|bot',
+              }
+    gen = api.ListGenerator('allusers', **params)
+    for u in gen:
+        yield u['name']
+
+
 def fetch(user):
-    params = {'action':'query',
-               'list':'recentchanges',
-               'rcuser':user,
-               'rclimit':'max',
-               'rcshow':'!patrolled',
-               'rctoken':'patrol'
-    }
-    req = api.Request(site=site, **params)
-    data = req.submit()
-    for change in data['query']['recentchanges']:
+    params = {'rcuser':user,
+              'rclimit':'max',
+              'rcshow':'!patrolled',
+              'rctoken':'patrol',
+              }
+    gen = api.ListGenerator('recentchanges', site=site, **params)
+    for change in gen:
+        print change
         yield change['rcid'], change['patroltoken']
 
 
@@ -49,8 +61,10 @@ def patrol(rcid, token):
     req = api.Request(site=site, **params)
     try:
         data = req.submit()
-    except pywikibot.data.api.APIError:
-        print 'error'
+    except pywikibot.data.api.APIError, e:
+        print e.code
+        print e.info
+        #print 'error'
         return
     print data
 
@@ -72,8 +86,13 @@ def main():
 
 
 if __name__ == "__main__":
-    pywikibot.handleArgs()
-    if len(sys.argv) > 2:
+    if '--all' in sys.argv:
+        for user in fetch_whitelist():
+            print user
+            for c in fetch(user):
+                patrol(*c)
+    elif len(sys.argv) > 1:
+        print sys.argv[1]
         for c in fetch(sys.argv[1]):
             patrol(*c)
     else:
