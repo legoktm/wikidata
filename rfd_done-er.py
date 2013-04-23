@@ -24,6 +24,7 @@ import pywikibot
 import re
 pywikibot.handleArgs()
 site = pywikibot.Site('wikidata','wikidata')
+site.login()
 regex = re.compile('== \[\[(?P<qid>Q\d*?)\]\] ==(?P<text>.*?)(?===)', flags=re.DOTALL)
 page = pywikibot.Page(site, 'Wikidata:Requests for deletions')
 text = oldtext = page.get()
@@ -31,10 +32,13 @@ x = list(regex.finditer(text))
 for m in x:
     q = pywikibot.Page(site, m.group('qid'))
     print q
-    if (not 'done}}' in m.group('text').lower()) and (not q.exists()):
+    if (not 'done}}' in m.group('text').lower() and not '{{deleted' in m.group('text').lower()) and (not q.exists()):
         print 'should be marked as done'
         t = m.group()
-        t+=':{{done}} ~~~~\n'
+        t+=':{{done}} (by another admin) ~~~~\n'
         text = text.replace(m.group(), t)
 pywikibot.showDiff(oldtext, text)
+#with open('f.txt','w') as f:
+#    f.write(text.encode('utf-8'))
+
 page.put(text, 'marking requests as done')
