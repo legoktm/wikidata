@@ -15,10 +15,11 @@ repo = enwp.data_repository()
 
 def create_item(lang, title, token=None,check=True,labels=False):
     wiki = lang+'wiki'
-    qid = repo.get_id(wiki, title)
-    if qid != '-1':
-        print 'Has already been imported, will not create.'
-        return None
+    if check:
+        qid = repo.get_id(wiki, title)
+        if qid != '-1':
+            print 'Has already been imported, will not create.'
+            return None
     #fetch the lang links
     params = {'action':'query',
               'titles':title,
