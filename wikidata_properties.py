@@ -19,8 +19,7 @@ pywikibot.handleArgs()
 
 
 def open_db():
-    return oursql.connect(db='u_legoktm_wikidata_properties_p',
-        host="sql-s1-user.toolserver.org",
+    return oursql.connect(
         read_default_file=os.path.expanduser("~/.my.cnf"),
         raise_on_warnings=False,
     )
