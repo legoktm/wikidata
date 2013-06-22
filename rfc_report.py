@@ -46,7 +46,7 @@ def contributors(page, db):
         res = cur.fetchone()
     return res[0]
 
-text = """{| class="wikitable"
+text = """{| class="wikitable; sortable"
 |-
 ! Name !! Contributors"""
 
