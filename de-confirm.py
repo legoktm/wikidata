@@ -21,10 +21,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
 import pywikibot
+from pywikibot import config
+config.usernames['wikidata']['wikidata'] = 'Legoktm'
 from pywikibot.data import api
 site = pywikibot.Site('wikidata','wikidata')
-if not site.logged_in():
-    site.login()
 def get_users():
     #action=query&list=allusers&augroup=confirmed&auprop=groups&aulimit=max&format=jsonfm
     params = {'action':'query',
@@ -42,6 +42,10 @@ def get_users():
             yield user['name']
 
 def change_rights(user):
+    #only log
+    if not site.logged_in():
+        site.login()
+
     #fetch token
     #action=query&list=users&ususers=Legoktm&ustoken=userrights&format=jsonfm
     t_params = {'action':'query',
