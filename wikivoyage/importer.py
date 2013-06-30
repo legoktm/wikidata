@@ -33,21 +33,29 @@ REGEX = re.compile('<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/
 
 
 def bot(site):
-    for page in site.allpages(namespace=0):
+    for page in site.allpages(namespace=0, filterredir=False):
         do_page(page)
 
 
 def do_page(page):
     #page is a wikivoyage page
+    print page.title()
     wp = get_wikipedia_link(page)
+    if wp:
+        if wp.isRedirectPage():
+            wp = wp.getRedirectTarget()
+    print wp
     if not wp:
+        print 'no wikipedia page. creating independently'
         wdapi.createItem(page)
         return
     item = pywikibot.ItemPage.fromPage(wp)
     if item.exists():
         data = wdapi.createItem(page, dontactuallysave=True)
+        print 'merging items.'
         item.editEntity(data, 'Importing Wikivoyage links from [[:voy:{0}:{1}]]'.format(page.title(), page.site.code))
     else:
+        print 'wp link has no item.'
         wdapi.createItem(page)  # TODO: Add the Wikipedia link here...
 
 
@@ -55,15 +63,15 @@ def get_wikipedia_link(page):
     site = page.site
     #print site.siteinfo
     url = 'http:' + site.siteinfo['server'] + site.nice_get_address(page.title())
-    print url
+    #print url
     r = requests.get(url, headers=headers)
-    print r.status_code
+    #print r.status_code
     text = r.text
     if 'interwiki-wikipedia' in text:
-        print 'yes'
+        #print 'yes'
         match = REGEX.search(text)
-        print match.group(0)
-        print match.group(1)
+        #print match.group(0)
+        #print match.group(1)
         paage = pywikibot.Page(enwiki, match.group(1))
         return paage
 
