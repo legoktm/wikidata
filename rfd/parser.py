@@ -46,7 +46,7 @@ def parse():
         data['header'] = header
         text = mwparserfromhell.parse(unicode(section).replace(header +'\n', ''))
         data['text'] = text
-        print text
+        #print text
         item = None
         for template in text.filter_templates():
             if unicode(template.name).startswith('Rfd group'):
