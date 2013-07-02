@@ -56,6 +56,8 @@ def comment(cmts, data):
 def main():
     for req in stuff:
         cmts = []
+        checked = []
+        safe = True
         if '[[User:Legobot|Legobot]]' in unicode(req['text']):
             #we already commented!
             continue
@@ -66,16 +68,23 @@ def main():
             if not item.exists():
                 continue
             if item.sitelinks:
+                safe = False
                 cmts.append('Warning: item still has {0} sitelinks.'.format(len(item.sitelinks)))
             else:
+                checked.append('sitelinks')
                 cmts.append('Bot comment: Item has no remaining sitelinks.')
             incoming = list(item.getReferences(namespaces=[0], total=1))
-            link = '[[Special:Whatlinkshere/{0}|incoming links]].'.format(item.getID())
+            link = '{{{{il|{0}}}}}'.format(item.getID())
             if incoming:
+                safe = False
                 cmts.append('Warning: item still has ' + link)
             else:
+                checked.append(link)
                 cmts.append('Bot comment: item has no ' + link)
-        comment(cmts, req)
+        if safe:
+            comment('Bot comment: Looks good to me. (Checked {0}).'.format(', '.join(checked)), req)
+        else:
+            comment(cmts, req)
 
 
 def finish():
