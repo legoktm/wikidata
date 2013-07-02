@@ -33,6 +33,8 @@ stuff = parser.parse()
 def comment(cmts, data):
     if not cmts:
         return
+    if not hasattr(cmts, '__iter__'):
+        cmts = [cmts]
     t = '\n'
     if len(cmts) == 1:
         t += ':{0} ~~~~\n'.format(cmts[0])
