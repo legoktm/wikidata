@@ -51,6 +51,10 @@ def comment(cmts, data):
         parser.rfd.counter += 1
     else:
         parser.rfd.counter = 1
+    if parser.rfd.counter >= 5:
+        finish()
+        parser.rfd.get()
+
 
 
 def main():
@@ -92,7 +96,12 @@ def finish():
         #We never touched anything, oh well.
         return
     pywikibot.showDiff(ORIGINAL_TEXT, parser.rfd.text)
-    parser.rfd.save(u'Bot: Commenting on {0} request(s).'.format(parser.rfd.counter))
+    try:
+        parser.rfd.save(u'Bot: Commenting on {0} request(s).'.format(parser.rfd.counter))
+    except pywikibot.exceptions.PageNotSaved:
+        pass
+    parser.rfd.counter = 0
+
 
 if __name__ == "__main__":
     main()
