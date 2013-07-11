@@ -138,8 +138,8 @@ class LinkStorage:
 class WikivoyagePage(pywikibot.Page):
 
     @property
-    def wikipedia(self, force=False):
-        if hasattr(self, '_wikipedia') and not force:
+    def wikipedia(self):
+        if hasattr(self, '_wikipedia'):
             return self._wikipedia
         self._wikipedia = None
         site = self.site
@@ -157,6 +157,13 @@ class WikivoyagePage(pywikibot.Page):
             paage = pywikibot.Page(enwiki, match.group(1))
             self._wikipedia = paage
         return self._wikipedia
+
+    @property
+    def wikidata(self):
+        if not hasattr(self, '_wikidata'):
+            self._wikidata = pywikibot.ItemPage.fromPage(self.wikipedia)
+        return self._wikidata
+
 
     @property
     def langlinks(self):
