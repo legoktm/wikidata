@@ -4,6 +4,7 @@ Released into the public domain.
 
 Authors:
     Legoktm, 2013
+    Hazard-SJ, 2013
 
 
 Script to import links from Wikivoyage into Wikidata.
@@ -145,7 +146,7 @@ class WikipediaLinkStorage:
         for link in links:
             self.items[link.lang] = link.page.wikidata
         if len(set(self.items.values())) > 1:
-            self.item = self.items[0]
+            self._item = self.items[0]
 
     @property
     def item(self):
