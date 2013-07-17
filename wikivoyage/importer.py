@@ -96,7 +96,7 @@ class Link:
 
 class LinkStorage:
     def __init__(self):
-        self.data ={}
+        self.data = {}
         #{'en':Link, 'uk': Link}
         self.checked = []
         # A list of language code's we've checked against.
@@ -133,6 +133,23 @@ class LinkStorage:
             if not lang in list(self.checked):
                 f.append(lang)
         return f
+
+
+class WikipediaLinkStorage:
+
+    def __init__(self):
+        self.items = dict()
+        self._item = None
+
+    def checkLinks(self, links):
+        for link in links:
+            self.items[link.lang] = link.page.wikidata
+        if len(set(self.items.values())) > 1:
+            self.item = self.items[0]
+
+    @property
+    def item(self):
+        return self._item
 
 
 class WikivoyagePage(pywikibot.Page):
@@ -205,6 +222,12 @@ def test(title):
                 collector.addLink(l)
             collector.checked.append(link.lang)
         #at this point collector has the full interwiki map
+    verifier = WikipediaLinkStorage()
+    verifier.checkLinks(collector.data)
+    #if verifier.item:
+    #   add the voy links to WD
+    #else:
+    #   report
     print 'done'
 
 
