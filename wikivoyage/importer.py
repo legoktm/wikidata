@@ -176,7 +176,7 @@ class WikipediaLinkStorage:
         if len(set(self.items.values())) > 1:
             self.safe = False
         else:
-            self._item = self.items[0]
+            self._item = self.items.values()[0]
 
 
     @property
