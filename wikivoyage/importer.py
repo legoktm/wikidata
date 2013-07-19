@@ -18,6 +18,7 @@ If there is no Wikipedia link, just create a separate Wikivoyage item. We should
 ensure the links add up.
 """
 from __future__ import unicode_literals
+import cache
 import pywikibot
 from pywikibot.data import api
 import re
@@ -27,12 +28,23 @@ import wdapi
 enwiki = pywikibot.Site('en', 'wikipedia')
 envoy = pywikibot.Site('en', 'wikivoyage')
 repo = enwiki.data_repository()
+cache = cache.Cache(backend='pickle', prefix='wikivoyage-importer')
 
 headers = {'User-agent': 'https://www.wikidata.org/wiki/User:Legobot'}
 #<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/wiki/New_York_City">Wikipedia</a></li>
 #<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/wiki/es:Ciudad_de_Nueva_York">Wikipedia</a></li>
 REGEX = re.compile('<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/wiki/(.*?)">Wikipedia</a></li>')
 
+
+def getNextConflictNumber():
+    if 'value' in cache:
+        val = cache.get('value') + 1
+    else:
+        val = 1
+    while pywikibot.Page(repo, 'Wikidata:Wikivoyage conflicts/' + str(val)).exists():
+        val += 1
+    cache.set('value', val)
+    return val
 
 def reportConflict(link1, link2):
     """
