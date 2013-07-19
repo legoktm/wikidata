@@ -168,15 +168,21 @@ class WikipediaLinkStorage:
     def __init__(self):
         self.items = dict()
         self._item = None
+        self.safe = True
 
     def checkLinks(self, links):
         for link in links:
-            self.items[link.lang] = link.page.wikidata
+            self.items[link.lang] = link.page.wikidata.getID()
         if len(set(self.items.values())) > 1:
+            self.safe = False
+        else:
             self._item = self.items[0]
+
 
     @property
     def item(self):
+        if self._item:
+            return pywikibot.ItemPage(repo, self._item)
         return self._item
 
 
@@ -256,6 +262,10 @@ def test(title):
 
     verifier = WikipediaLinkStorage()
     verifier.checkLinks(collector.data)
+    if not verifier.safe:
+        #TODO: Report conflict
+        return  # Abort!
+    
     #if verifier.item:
     #   add the voy links to WD
     #else:
