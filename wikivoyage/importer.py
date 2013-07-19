@@ -265,11 +265,17 @@ def test(title):
     if not verifier.safe:
         #TODO: Report conflict
         return  # Abort!
-    
-    #if verifier.item:
-    #   add the voy links to WD
-    #else:
-    #   report
+
+    if verifier.item:
+        print 'Appending to ' + verifier.item.getID()
+        verifier.item.setSitelinks([link.page for link in collector])
+    else:
+        data = {}
+        for link in collector:
+            data[link.page.site.dbName()] = {'site': link.page.site.dbName(), 'title': link.page.title()}
+        print 'Creating a new item.'
+        repo.editEntity({}, {'sitelinks': data})
+
     print 'done'
 
 
