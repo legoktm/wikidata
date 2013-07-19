@@ -47,37 +47,46 @@ def getNextConflictNumber():
     cache.set('value', val)
     return val
 
-def reportConflict(link1, link2):
-    """
-    @type link1: Link
-    @type link2: Link
-    @return: None
-    """
-    pg = '-'.join(sorted([link1.source.site.lang, link2.source.site.lang]))
-    pg = 'Wikidata:Wikivoyage conflicts/' + pg
-    page = pywikibot.Page(repo, pg)
-    try:
-        old = page.get()
-    except pywikibot.NoPage:
-        old = ''
-    nt = 'WVC|lang={0}|lang1={1}|page1={2}|target1={3}|lang2={4}|page2={5}|target2={6}'.format(
-        link1.lang,
-        link1.source.site.code,
-        link1.source.title(),
-        link1.title,
-        link2.source.site.code,
-        link2.source.title(),
-        link2.title,
-    )
-    if nt in old:
-        print 'already reported'
+
+class Conflict:
+    def __init__(self):
+        self.text = ''
+
+    def reportConflict(self, link1, link2):
+        """
+        @type link1: Link
+        @type link2: Link
+        @return: None
+        """
+        nt = 'WVC|lang={0}|lang1={1}|page1={2}|target1={3}|lang2={4}|page2={5}|target2={6}'.format(
+            link1.lang,
+            link1.source.site.code,
+            link1.source.title(),
+            link1.title,
+            link2.source.site.code,
+            link2.source.title(),
+            link2.title,
+        )
+        if nt in old:
+            print 'already reported'
+            #quit()
+            return
+        nt = '\n*{{' + nt + '}}'
+        self.text = (self.text + nt).strip()
+        print 'uhoh, conflict!'
         #quit()
-        return
-    nt = '\n*{{' + nt + '}}'
-    pywikibot.output(nt.strip())
-    page.put((old + nt).strip(), 'Bot: Adding new conflict report')
-    print 'uhoh, conflict!'
-    #quit()
+
+    def push(self):
+        if not self.text:
+            #No conflicts, don't do anything.
+            return
+        pg = 'Wikidata:Wikivoyage conflicts/' + str(getNextConflictNumber())
+        page = pywikibot.Page(repo, pg)
+        page.put(self.text, 'Bot: Creating new conflict report')
+        print 'Posted new conflict report at [[{0}]]'.format(pg)
+
+    def isSafe(self):
+        return bool(self.text)
 
 
 class Link:
@@ -113,8 +122,8 @@ class LinkStorage:
         #{'en':Link, 'uk': Link}
         self.checked = []
         # A list of language code's we've checked against.
-        self.safe = True
-        # False if any conflicts have been reported.
+        self.conflict = Conflict()
+        # An empty conflict object
 
     def __iter__(self):
         for lang in self.data:
@@ -129,8 +138,7 @@ class LinkStorage:
                 return True
             else:
                 #Uhoh. We have a conflict.
-                reportConflict(link, self.data[link.lang])
-                self.safe = False
+                self.conflict.reportConflict(link, self.data[link.lang])
                 return False
         else:
             #It's a newly found link.
@@ -146,6 +154,13 @@ class LinkStorage:
             if not lang in list(self.checked):
                 f.append(lang)
         return f
+
+    @property
+    def safe(self):
+        return self.conflict.isSafe()
+
+    def finish(self):
+        self.conflict.push()
 
 
 class WikipediaLinkStorage:
@@ -234,7 +249,11 @@ def test(title):
             for l in pg.langlinks:
                 collector.addLink(l)
             collector.checked.append(link.lang)
-        #at this point collector has the full interwiki map
+    #at this point collector has the full interwiki map
+    collector.finish()  # Post any conflicts
+    if not collector.safe:
+        return  # Abort!
+
     verifier = WikipediaLinkStorage()
     verifier.checkLinks(collector.data)
     #if verifier.item:
