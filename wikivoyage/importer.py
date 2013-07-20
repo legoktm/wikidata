@@ -172,10 +172,12 @@ class WikipediaLinkStorage:
 
     def checkLinks(self, links):
         for link in links:
-            self.items[link.lang] = link.page.wikidata.getID()
-        if len(set(self.items.values())) > 1:
+            if link.page.wikidata and link.page.wikidata.exists():
+                self.items[link.lang] = link.page.wikidata.getID()
+        items = len(set(self.items.values()))
+        if items > 1:
             self.safe = False
-        else:
+        elif items == 1:
             self._item = self.items.values()[0]
 
 
