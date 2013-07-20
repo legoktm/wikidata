@@ -29,7 +29,7 @@ import wdapi
 enwiki = pywikibot.Site('en', 'wikipedia')
 envoy = pywikibot.Site('en', 'wikivoyage')
 repo = enwiki.data_repository()
-cache = cache.Cache(backend='pickle', prefix='wikivoyage-importer')
+CACHE = cache.Cache(backend='pickle', prefix='wikivoyage-importer')
 
 headers = {'User-agent': 'https://www.wikidata.org/wiki/User:Legobot'}
 #<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/wiki/New_York_City">Wikipedia</a></li>
@@ -39,12 +39,12 @@ REGEX = re.compile('<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/
 
 def getNextConflictNumber():
     if 'value' in cache:
-        val = cache.get('value') + 1
+        val = CACHE.get('value') + 1
     else:
         val = 1
     while pywikibot.Page(repo, 'Wikidata:Wikivoyage conflicts/' + str(val)).exists():
         val += 1
-    cache.set('value', val)
+    CACHE.set('value', val)
     return val
 
 
