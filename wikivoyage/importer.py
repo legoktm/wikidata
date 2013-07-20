@@ -214,7 +214,10 @@ class WikivoyagePage(pywikibot.Page):
     @property
     def wikidata(self):
         if not hasattr(self, '_wikidata'):
-            self._wikidata = pywikibot.ItemPage.fromPage(self.wikipedia)
+            if self.wikipedia:
+                self._wikidata = pywikibot.ItemPage.fromPage(self.wikipedia)
+            else:
+                self._wikidata = None
         return self._wikidata
 
 
