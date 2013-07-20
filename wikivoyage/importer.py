@@ -86,7 +86,7 @@ class Conflict:
         print 'Posted new conflict report at [[{0}]]'.format(pg)
 
     def isSafe(self):
-        return bool(self.text)
+        return not bool(self.text)
 
 
 class Link:
