@@ -266,7 +266,7 @@ def test(title):
         return  # Abort!
 
     verifier = WikipediaLinkStorage()
-    verifier.checkLinks(collector.data)
+    verifier.checkLinks(collector)
     if not verifier.safe:
         #TODO: Report conflict
         return  # Abort!
