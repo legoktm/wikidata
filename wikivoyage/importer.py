@@ -207,8 +207,9 @@ class WikivoyagePage(pywikibot.Page):
             match = REGEX.search(text)
             #print match.group(0)
             #print match.group(1)
-            paage = pywikibot.Page(enwiki, match.group(1))
-            self._wikipedia = paage
+            self._wikipedia = pywikibot.Page(enwiki, match.group(1))
+            if self._wikipedia.isRedirectPage():
+                self._wikipedia = self._wikipedia.getRedirectTarget()
         return self._wikipedia
 
     @property
