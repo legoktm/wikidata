@@ -91,7 +91,7 @@ class Conflict:
         self.text += '{{WYcategorizer|' + '|'.join(self.langs) + '}}\n'
         pg = 'Wikidata:Wikivoyage conflicts/' + str(getNextConflictNumber())
         page = pywikibot.Page(repo, pg)
-        #page.put(self.text, 'Bot: Creating new conflict report')
+        page.put(self.text, 'Bot: Creating new conflict report')
         print 'Posted new conflict report at [[{0}]]'.format(pg)
 
     def isSafe(self):
@@ -306,24 +306,24 @@ def test(title):
 
     if verifier.item:
         print 'Appending to ' + verifier.item.getID()
-        #verifier.item.setSitelinks([link.page for link in collector])
+        verifier.item.setSitelinks([link.page for link in collector])
     else:
         data = {}
         for link in collector:
             data[link.page.site.dbName()] = {'site': link.page.site.dbName(), 'title': link.page.title()}
         print 'Creating a new item.'
-        #repo.editEntity({}, {'sitelinks': data})
+        repo.editEntity({}, {'sitelinks': data})
 
     print 'done'
 
 
 if __name__ == '__main__':
-    #for pg in envoy.allpages(namespace=0, filterredir=False):
-        #pywikibot.output(pg.title())
-    #    test(pg.title())
+    for pg in envoy.allpages(namespace=0, filterredir=False):
+        pywikibot.output(pg.title())
+        test(pg.title())
     #test('New York City')
     #test('New York (state)')
     #test('San Jose')
     #test('Acre')
     #test('Abu Dhabi')
-    test('Albany (New York)')
+    #test('Albany (New York)')
