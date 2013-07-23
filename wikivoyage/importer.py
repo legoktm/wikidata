@@ -51,6 +51,7 @@ def getNextConflictNumber():
 class Conflict:
     def __init__(self):
         self.text = ''
+        self.langs = set()
 
     def reportConflict(self, link1, link2):
         """
@@ -74,15 +75,18 @@ class Conflict:
         nt = '\n*{{' + nt + '}}'
         self.text = (self.text + nt).strip()
         print 'uhoh, conflict!'
+        self.langs.add(link1.lang)
         #quit()
 
-    def push(self):
+    def push(self, dump=''):
         if not self.text:
             #No conflicts, don't do anything.
             return
+        self.text += '\n' + dump
+        self.text += '{{WYcategorizer|' + '|'.join(self.langs) + '}}\n'
         pg = 'Wikidata:Wikivoyage conflicts/' + str(getNextConflictNumber())
         page = pywikibot.Page(repo, pg)
-        page.put(self.text, 'Bot: Creating new conflict report')
+        #page.put(self.text, 'Bot: Creating new conflict report')
         print 'Posted new conflict report at [[{0}]]'.format(pg)
 
     def isSafe(self):
@@ -160,7 +164,21 @@ class LinkStorage:
         return self.conflict.isSafe()
 
     def finish(self):
-        self.conflict.push()
+        self.conflict.push(dump='')
+
+    @property
+    def text(self):
+        # Currently unused.
+        text = '== Partial interwiki map ==\n'
+        for link in self:
+            t = 'WYLink|lang={0}|title={1}|lang2={2}|title2={3}'.format(
+                link.lang,
+                link.title,
+                link.source.site.language(),
+                link.source.title()
+            )
+            text += '*{{' + t + '}}\n'
+        return text
 
 
 class WikipediaLinkStorage:
