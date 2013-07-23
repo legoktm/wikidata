@@ -29,7 +29,7 @@ import wdapi
 enwiki = pywikibot.Site('en', 'wikipedia')
 envoy = pywikibot.Site('en', 'wikivoyage')
 repo = enwiki.data_repository()
-CACHE = cache.Cache(backend='pickle', prefix='wikivoyage-importer')
+CACHE = cache.Cache(backend='redis', prefix='wikivoyage-importer', host='tools-mc')
 
 headers = {'User-agent': 'https://www.wikidata.org/wiki/User:Legobot'}
 #<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/wiki/New_York_City">Wikipedia</a></li>
