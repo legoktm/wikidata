@@ -320,7 +320,10 @@ def test(title):
 if __name__ == '__main__':
     for pg in envoy.allpages(namespace=0, filterredir=False):
         pywikibot.output(pg.title())
-        test(pg.title())
+        try:
+            test(pg.title())
+        except Exception, e:
+            pywikibot.output(e)
     #test('New York City')
     #test('New York (state)')
     #test('San Jose')
