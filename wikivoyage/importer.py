@@ -227,9 +227,12 @@ class WikivoyagePage(pywikibot.Page):
                 return
             #print match.group(0)
             #print match.group(1)
-            self._wikipedia = pywikibot.Page(enwiki, match.group(1))
-            if self._wikipedia.isRedirectPage():
-                self._wikipedia = self._wikipedia.getRedirectTarget()
+            page = pywikibot.Page(enwiki, match.group(1))
+            if page.exists():
+                if page.isRedirectPage():
+                    self._wikipedia = page.getRedirectTarget()
+                else:
+                    self._wikipedia = page
         return self._wikipedia
 
     @property
