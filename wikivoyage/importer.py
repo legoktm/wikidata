@@ -24,7 +24,10 @@ import pywikibot
 from pywikibot.data import api
 import re
 import requests
-import wdapi
+import sys
+
+DEBUG = '--debug' in sys.argv
+
 lang = sys.argv[1]
 
 enwiki = pywikibot.Site('en', 'wikipedia')
