@@ -39,7 +39,7 @@ REGEX = re.compile('<li class="interwiki-wikipedia"><a href="//en.wikipedia.org/
 
 def getNextConflictNumber():
     if 'value' in cache:
-        val = CACHE.get('value') + 1
+        val = int(CACHE.get('value')) + 1
     else:
         val = 1
     while pywikibot.Page(repo, 'Wikidata:Wikivoyage conflicts/' + str(val)).exists():
