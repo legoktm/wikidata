@@ -223,6 +223,8 @@ class WikivoyagePage(pywikibot.Page):
         if 'interwiki-wikipedia' in text:
             #print 'yes'
             match = REGEX.search(text)
+            if not match.group(1):
+                return
             #print match.group(0)
             #print match.group(1)
             self._wikipedia = pywikibot.Page(enwiki, match.group(1))
