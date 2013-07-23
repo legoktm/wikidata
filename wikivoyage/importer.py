@@ -86,6 +86,7 @@ class Conflict:
         if not self.text:
             #No conflicts, don't do anything.
             return
+        self.text = '{{WYconflict}}\n' + self.text
         self.text += '\n' + dump
         self.text += '{{WYcategorizer|' + '|'.join(self.langs) + '}}\n'
         pg = 'Wikidata:Wikivoyage conflicts/' + str(getNextConflictNumber())
@@ -146,6 +147,7 @@ class LinkStorage:
                 return True
             else:
                 #Uhoh. We have a conflict.
+                print 'Adding conflict.'
                 self.conflict.reportConflict(link, self.data[link.lang])
                 return False
         else:
@@ -195,6 +197,7 @@ class WikipediaLinkStorage:
     def checkLinks(self, links):
         for link in links:
             if link.page.wikidata and link.page.wikidata.exists():
+            #if link.page.wikidata:
                 self.items[link.lang] = link.page.wikidata.getID()
         items = len(set(self.items.values()))
         if items > 1:
@@ -303,22 +306,24 @@ def test(title):
 
     if verifier.item:
         print 'Appending to ' + verifier.item.getID()
-        verifier.item.setSitelinks([link.page for link in collector])
+        #verifier.item.setSitelinks([link.page for link in collector])
     else:
         data = {}
         for link in collector:
             data[link.page.site.dbName()] = {'site': link.page.site.dbName(), 'title': link.page.title()}
         print 'Creating a new item.'
-        repo.editEntity({}, {'sitelinks': data})
+        #repo.editEntity({}, {'sitelinks': data})
 
     print 'done'
 
 
 if __name__ == '__main__':
-    for pg in envoy.allpages(namespace=0, filterredir=False):
+    #for pg in envoy.allpages(namespace=0, filterredir=False):
         #pywikibot.output(pg.title())
-        test(pg.title())
+    #    test(pg.title())
     #test('New York City')
     #test('New York (state)')
     #test('San Jose')
-    test('Acre')
+    #test('Acre')
+    #test('Abu Dhabi')
+    test('Albany (New York)')
