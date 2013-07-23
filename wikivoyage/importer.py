@@ -270,6 +270,8 @@ def test(title):
     for link in nyc.langlinks:
         #pywikibot.output(link)
         collector.addLink(link)
+    if not collector.data: # Page had no langlinks
+        collector.addLink(Link(source=nyc, lang=nyc.site.language(), title=nyc.title()))
     collector.checked.append(nyc.site.code)
     while collector.notchecked:
         for link in list(collector):
