@@ -25,9 +25,10 @@ from pywikibot.data import api
 import re
 import requests
 import wdapi
+lang = sys.argv[1]
 
 enwiki = pywikibot.Site('en', 'wikipedia')
-envoy = pywikibot.Site('en', 'wikivoyage')
+envoy = pywikibot.Site(lang, 'wikivoyage')
 repo = enwiki.data_repository()
 CACHE = cache.Cache(backend='redis', prefix='wikivoyage-importer', host='tools-mc')
 
