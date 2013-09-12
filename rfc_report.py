@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
-
+from __future__ import unicode_literals
 import pywikibot
 from wmflabs import db as mysql
 
 site = pywikibot.Site('wikidata', 'wikidata')
-
+site.login()
 db = mysql.connect('wikidatawiki')
 
 
@@ -41,7 +41,7 @@ def contributors(page, db):
                     "join page "
                     "on rev_page=page_id "
                     "where page_namespace=4 "
-                    "and page_title=?", (page.title(withNamespace=False).replace(' ', '_'),))
+                    "and page_title=?", (page.title(withNamespace=False).replace(' ', '_').encode('utf-8'),))
         res = cur.fetchone()
     return res[0]
 
