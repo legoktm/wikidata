@@ -36,6 +36,7 @@ gen = pagegenerators.ReferringPageGenerator(temp, onlyTemplateInclusion=True, co
 
 def normalize_pegi(thingy):
     # BECAUSE PEOPLE DO WEIRD THINGS!
+    thingy = pywikibot.removeDisabledParts(thingy)
     thingy = thingy.replace('+', '')
     thingy = thingy.strip()
     if thingy.isdigit():
@@ -45,8 +46,9 @@ def normalize_pegi(thingy):
 
 
 def normalize_usk(thingy):
+    thingy = pywikibot.removeDisabledParts(thingy)
     thingy = thingy.strip()
-    if thingy.isdigit:
+    if thingy.isdigit():
         if int(thingy) in USK:
             item = pywikibot.ItemPage(repo, USK[int(thingy)])
             return item
@@ -70,6 +72,8 @@ def do_page(page):
                     claim = pywikibot.Claim(repo, PEGI_PROP.getID())
                     claim.setTarget(item)
                     claims.append(claim)
+                else:
+                    print 'no ' + pname
             for pname in ['USK']:
                 if t.has_param(pname):
                     val = unicode(t.get(pname).value)
@@ -79,16 +83,24 @@ def do_page(page):
                     claim = pywikibot.Claim(repo, USK_PROP.getID())
                     claim.setTarget(item)
                     claims.append(claim)
+                else:
+                    print 'no ' + pname
 
     if found > 1:
         pywikibot.output('COMPLAINT: {0}'.format(page.title(asLink=True, forceInterwiki=True)))
         return
     item = pywikibot.ItemPage.fromPage(page)
     for claim in claims:
-        if wdapi.canClaimBeAdded(item, claim)[0]:
+        print claim
+        can, reason = wdapi.canClaimBeAdded(item, claim)
+        if can:
             pywikibot.output('Adding claim: {0} --> {1}'.format(claim.getID(), claim.getTarget().getID()))
             item.addClaim(claim)
             claim.addSource(REF)
+        else:
+            print 'couldnt be added'
+            print reason
 
-for page in gen:
-    do_page(page)
+if __name__ == '__main__':
+    for page in gen:
+        do_page(page)
