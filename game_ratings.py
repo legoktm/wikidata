@@ -90,6 +90,9 @@ def do_page(page):
         pywikibot.output('COMPLAINT: {0}'.format(page.title(asLink=True, forceInterwiki=True)))
         return
     item = pywikibot.ItemPage.fromPage(page)
+    if not item.exists():
+        wdapi.createItem(page)
+    item = pywikibot.ItemPage.fromPage(page)
     for claim in claims:
         print claim
         can, reason = wdapi.canClaimBeAdded(item, claim)
