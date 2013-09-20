@@ -31,7 +31,8 @@ REF = pywikibot.Claim(repo, 'P143')
 REF.setTarget(pywikibot.ItemPage(repo, 'Q48183'))
 
 temp = pywikibot.Page(dewiki, 'Vorlage:Infobox Computer- und Videospiel')
-gen = pagegenerators.ReferringPageGenerator(temp, onlyTemplateInclusion=True, content=True)
+gen = temp.getReferences(follow_redirects=False, onlyTemplateInclusion=True, content=True, namespaces=[0])
+#gen = pagegenerators.ReferringPageGenerator(temp, onlyTemplateInclusion=True, content=True)
 
 
 def normalize_pegi(thingy):
