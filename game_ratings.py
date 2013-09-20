@@ -64,7 +64,7 @@ def do_page(page):
     for t in code.filter_templates():
         if t.name.matches('Infobox Computer- und Videospiel'):
             found += 1
-            for pname in ['PEGI', 'PEGI1', 'PEGI2', 'PEGI3']:
+            for pname in ['PEGI', 'PEGI1', 'PEGI2', 'PEGI3', 'PEGI4']:
                 if t.has_param(pname):
                     val = unicode(t.get(pname).value)
                     item = normalize_pegi(val)
@@ -75,7 +75,7 @@ def do_page(page):
                     claims.append(claim)
                 else:
                     print 'no ' + pname
-            for pname in ['USK']:
+            for pname in ['USK', 'USK1', 'USK2', 'USK3', 'USK4']:
                 if t.has_param(pname):
                     val = unicode(t.get(pname).value)
                     item = normalize_usk(val)
