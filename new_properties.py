@@ -39,6 +39,6 @@ if t:
 else:
     t = 'none'
 
-newtext = re.sub('\* Newest properties: .*?\n', '* Newest properties: '+ t + '\n', page.get())
+newtext = re.sub('\* Newest properties:.*?\n', '* Newest properties: '+ t + '\n', page.get())
 pywikibot.showDiff(page.get(), newtext)
 page.put(newtext, 'Bot: Updating list of new properties')
