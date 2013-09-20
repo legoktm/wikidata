@@ -93,7 +93,7 @@ def do_page(page):
     for claim in claims:
         print claim
         can, reason = wdapi.canClaimBeAdded(item, claim)
-        if can:
+        if can or reason == 'oneof':
             pywikibot.output('Adding claim: {0} --> {1}'.format(claim.getID(), claim.getTarget().getID()))
             item.addClaim(claim)
             claim.addSource(REF)
