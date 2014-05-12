@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/data/project/legobot/python/bin/python
 from __future__ import unicode_literals
 """
 Copyright (C) 2013 Legoktm
@@ -26,12 +26,12 @@ import cgitb; cgitb.enable()
 import cgi
 import sys
 import os
-os.environ['PYWIKIBOT2_DIR'] = '/home/legoktm/rewrite/'
+#os.environ['PYWIKIBOT2_DIR'] = '/home/legoktm/rewrite/'
 import pywikibot
 from pywikibot import textlib
 import bootstrap
-sys.path.append('/home/legoktm/wikidata')
-import enwiki_removal
+#sys.path.append('/home/legoktm/wikidata')
+#import enwiki_removal
 
 
 
@@ -65,7 +65,9 @@ def main():
     site=pywikibot.Site(site_lang,'wikipedia')
     repo=site.data_repository()
     #qid = 'Q1'
-    sitelinks = repo.get_sitelinks(qid)
+    item = pywikibot.ItemPage(repo, qid)
+    sitelinks = item.get().get('sitelinks')
+#    sitelinks = repo.get_sitelinks(qid)
     for lang in sitelinks:
         if '_' in lang:
             newlang = lang.replace('_','-')
