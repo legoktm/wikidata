@@ -47,6 +47,10 @@ if t:
 else:
     t = 'none'
 
-newtext = re.sub('\* Newest properties:.*?\n', '* Newest properties: ' + t + '\n', page.get())
+TOP_MARKER = '<!-- NEW PROPERTIES DO NOT REMOVE -->'
+BOTTOM_MARKER = '<!-- END NEW PROPERTIES -->'
+PRE_TEXT = '* Newest [[d:Special:ListProperties|properties]]: '
+
+newtext = re.sub('%s.*?\n%s' % (TOP_MARKER, BOTTOM_MARKER), TOP_MARKER + '\n' + PRE_TEXT + t + '\n' + BOTTOM_MARKER, page.get(), flags=re.DOTALL)
 pywikibot.showDiff(page.get(), newtext)
 page.put(newtext, 'Bot: Updating list of new properties')
