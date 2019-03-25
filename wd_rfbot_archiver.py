@@ -45,10 +45,10 @@ rm_these = list()
 code = mwparserfromhell.parse(text)
 for temp in code.filter_templates():
     if temp.name.startswith('Wikidata:Requests for permissions/Bot/') and not '/Header/' in temp.name:
-        subpage = pywikibot.Page(site, unicode(temp.name))
+        subpage = pywikibot.Page(site, str(temp.name))
         if '{{approved}}' in subpage.get().lower():
             rm_these.append(subpage.title())
-print rm_these
+print(rm_these)
 
 #ok lets now add them to the archive list
 old = archive.get()
